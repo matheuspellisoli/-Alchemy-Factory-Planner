@@ -357,6 +357,11 @@ function buildDetailGraph(base, laneId) {
     });
   });
 
+  // Tudo o que sai do bloco (para outros blocos, produto final ou sobras) fica na última coluna.
+  const exits = nodes.filter((node) => node.type === "output" || node.type === "waste");
+  const lastCol = Math.max(...nodes.filter((node) => !exits.includes(node)).map((node) => node.col));
+  exits.forEach((node) => { node.col = Math.floor(lastCol) + 1; });
+
   return { nodes, edges, lanes: lane ? [lane] : [] };
 }
 
@@ -527,7 +532,7 @@ function flowNurseryLine(entry) {
   if (entry.machineId === SEED_PLOT_ID) {
     return `
       <div class="furnace-line nursery-line seed-plot-line" title="${escapeHtml(t("seedPlot.title"))}">
-        <span><b>${round(entry.outputPerMinute)}/min</b> ${t("perMachine")}</span>
+        <span><b>${formatRate(entry.demand)}</b> ${t("total")}</span>
         <span class="heat">${t("seedPlot.note")}</span>
       </div>`;
   }
@@ -536,7 +541,7 @@ function flowNurseryLine(entry) {
   return `
     <div class="furnace-line nursery-line" title="${escapeHtml(t("nursery.title", { item: entry.fertilizerItem, value: fertilizer?.nutrientValue || 0, speed: fertilizer?.nutrientsPerSecond || 0 }))}">
       ${flowIcon(itemIcon(entry.fertilizerItem))}
-      <span><b>${round(entry.outputPerMinute)}/min</b> ${t("perMachine")}</span>
+      <span><b>${formatRate(entry.demand)}</b> ${t("total")}</span>
       <span class="heat">🌱 ${formatRate(entry.fertilizerRate)}</span>
     </div>`;
 }
@@ -557,7 +562,7 @@ function flowFactoryFertilizerHtml(plan) {
         </div>
         <div class="fuel-row-selects">
           ${entry.planting ? `<select data-icon-select data-planting-picker="${escapeHtml(entry.item)}" aria-label="${escapeHtml(t("aria.plantingOf", { item: entry.item }))}" class="${isManualPlanting(entry.item) ? "manual" : ""}">${flowPlantingOptions(entry.item)}</select>` : ""}
-          ${entry.fertilizerItem ? `<select data-icon-select data-fertilizer-picker="${escapeHtml(entry.item)}" aria-label="${escapeHtml(t("aria.fertilizerOf", { item: entry.item }))}" class="${isManualFertilizer(entry.item) ? "manual" : ""}">${flowFertilizerOptions(entry.item)}</select>` : `<span class="fuel-note">sem fertilizante</span>`}
+          ${entry.fertilizerItem ? `<select data-icon-select data-fertilizer-picker="${escapeHtml(entry.item)}" aria-label="${escapeHtml(t("aria.fertilizerOf", { item: entry.item }))}" class="${isManualFertilizer(entry.item) ? "manual" : ""}">${flowFertilizerOptions(entry.item)}</select>` : `<span class="fuel-note">${t("fert.none")}</span>`}
         </div>
       </div>`;
   };
