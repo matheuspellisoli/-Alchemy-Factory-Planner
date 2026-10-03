@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fluxo — exemplo A — Colunas por etapa</title>
+    <link rel="stylesheet" href="flow.css" />
+  </head>
+  <body data-layout="columns">
+    <header class="bar">
+      <div>
+        <h1>Exemplo A — Colunas por etapa</h1>
+        <p>Grafo único da esquerda (matérias-primas) para a direita (produto). Subcadeias identificadas pela cor no topo de cada nó; Rock Salt é um nó só alimentando duas cadeias.</p>
+      </div>
+      <nav>
+        <a href="colunas.html" class="active">A · Colunas</a>
+        <a href="clusters.html" class="">B · Clusters</a>
+      </nav>
+    </header>
+    <section class="stage">
+      <div class="world">
+        <div class="groups"></div>
+        <svg class="edges" width="1" height="1"></svg>
+        <div class="nodes"></div>
+      </div>
+      <div class="zoom">
+        <button type="button" data-zoom="in" title="Aproximar">+</button>
+        <button type="button" data-zoom="out" title="Afastar">−</button>
+        <button type="button" data-zoom="fit" title="Ajustar à tela">⤢</button>
+      </div>
+      <div class="hint">Passe o mouse num nó para destacar o caminho · clique para detalhes · ⊟ recolhe as entradas · arraste nós ou o fundo · roda do mouse = zoom</div>
+      <aside class="details"></aside>
+      <div class="toast"></div>
+    </section>
+    <script src="flow.js"></script>
+  </body>
+</html>

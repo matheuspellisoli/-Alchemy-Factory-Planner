@@ -1,0 +1,795 @@
+/* Fluxo de produção (HTML + SVG). Tokens de cor vêm de styles.css. */
+
+.flow-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  background-color: var(--editor);
+  background-image: radial-gradient(rgba(212, 165, 87, 0.11) 1px, transparent 1.2px);
+  background-size: 22px 22px;
+}
+.flow-stage.panning { cursor: grabbing; }
+
+.flow-world {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+
+.flow-edges {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.flow-empty {
+  position: absolute;
+  left: 28px;
+  top: 28px;
+  width: 360px;
+  color: var(--muted);
+}
+
+.flow-stage .dim { opacity: 0.22; }
+
+/* ---------- subcadeias ---------- */
+.flow-group {
+  position: absolute;
+  border: 1.5px dashed color-mix(in srgb, var(--lane) 55%, transparent);
+  background: color-mix(in srgb, var(--lane) 5%, transparent);
+  border-radius: 16px;
+  transition: opacity 160ms;
+}
+.group-head {
+  position: absolute;
+  left: 14px;
+  top: 10px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.group-head strong { color: var(--lane); font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* ---------- arestas ---------- */
+.edge {
+  fill: none;
+  stroke: #4d5560;
+  stroke-width: 2;
+  transition: opacity 160ms, stroke 160ms;
+}
+.edge.fuel { stroke-dasharray: 6 5; stroke: color-mix(in srgb, var(--amber) 60%, #4d5560); }
+.edge.waste { stroke: color-mix(in srgb, var(--red) 55%, #4d5560); stroke-dasharray: 4 4; }
+.edge.hot {
+  stroke: var(--lane, var(--green));
+  stroke-width: 2.6;
+  stroke-dasharray: 8 6;
+  animation: flow-dash 0.8s linear infinite;
+}
+@keyframes flow-dash { to { stroke-dashoffset: -14; } }
+
+/* ---------- botões e selects dentro do fluxo (anulam o estilo global) ---------- */
+.flow-stage button {
+  min-height: 0;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 12px;
+  transform: none;
+}
+.flow-stage button:hover { border-color: var(--lane, var(--green)); }
+.group-head button { margin-left: auto; }
+
+.flow-stage select {
+  width: auto;
+  min-height: 0;
+  flex: 1;
+  min-width: 0;
+  background: var(--input);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.flow-stage select:hover { border-color: var(--lane, var(--green)); }
+
+/* ---------- nós ---------- */
+.flow-node {
+  position: absolute;
+  width: 250px;
+  background: var(--node);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 160ms, border-color 160ms, box-shadow 160ms;
+}
+.flow-node.process::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: -1.5px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--lane);
+}
+.flow-node:hover { border-color: color-mix(in srgb, var(--lane) 70%, var(--line)); }
+.flow-node.selected {
+  border-color: var(--lane);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--lane) 22%, transparent), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.flow-node.fresh { animation: flow-fresh 0.65s ease-in-out 4; }
+@keyframes flow-fresh {
+  50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--lane) 45%, transparent), 0 8px 24px rgba(0, 0, 0, 0.35); }
+}
+
+.flow-node.raw {
+  width: 170px;
+  border-radius: 28px 12px 12px 28px;
+  background: #2a2219;
+  border-color: #6b5330;
+}
+.flow-node.output {
+  width: 190px;
+  border-radius: 12px 28px 28px 12px;
+  background: #1d3a41;
+  border-color: var(--green);
+}
+
+.flow-node.item {
+  width: 150px;
+  padding: 10px 10px 9px;
+  border-radius: 14px;
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  background: color-mix(in srgb, var(--lane) 9%, var(--panel));
+  border-color: color-mix(in srgb, var(--lane) 45%, var(--line));
+}
+.flow-node.item .item-icon { width: 30px; height: 30px; }
+.flow-node.item strong { font-size: 12px; line-height: 1.2; }
+.flow-node.item .rate { font-size: 12px; font-weight: 700; color: var(--lane); }
+.flow-node.item .item-meta { font-size: 10px; color: var(--muted); }
+.flow-node.waste {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--red) 60%, var(--line));
+  background: color-mix(in srgb, var(--red) 7%, var(--panel));
+}
+.flow-node.waste .rate { color: #f0b2a3; }
+
+.port {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: var(--panel-2);
+  border: 2px solid #6b7380;
+}
+.port.in { left: -7px; }
+.port.out { right: -7px; }
+
+.node-head { display: flex; align-items: center; gap: 10px; }
+.node-icon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--lane) 16%, transparent);
+}
+.node-icon img { width: 32px; height: 32px; }
+.node-icon.machine {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--lane) 14%, var(--input));
+  border: 1px solid color-mix(in srgb, var(--lane) 35%, transparent);
+}
+.node-icon.machine img { width: 44px; height: 44px; }
+.node-title { min-width: 0; }
+.node-title strong { display: block; font-size: 14px; line-height: 1.2; }
+.node-title span { font-size: 12px; color: var(--muted); }
+.node-title .rate { color: var(--lane); font-weight: 600; }
+.node-product { display: inline-flex; align-items: center; gap: 4px; }
+.node-product img { width: 16px; height: 16px; }
+.count-badge {
+  margin-left: auto;
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--editor);
+  background: var(--lane);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.load-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.load-line .load {
+  flex: 1;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+.load-line .load span { display: block; height: 100%; background: linear-gradient(90deg, var(--green), var(--amber)); }
+
+.node-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.node-row label { width: 76px; flex: none; white-space: nowrap; }
+
+/* entradas e saídas por item */
+.io {
+  margin: 10px -12px 0;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 6px;
+}
+.io-title {
+  padding: 2px 12px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-2);
+}
+.io-title.out { text-align: right; margin-top: 4px; }
+.io-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 14px;
+  font-size: 12px;
+}
+.io-row.out { flex-direction: row-reverse; }
+.io-row img { width: 18px; height: 18px; flex: none; }
+.io-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.io-rate { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.io-row.out .io-rate { margin-left: 0; margin-right: auto; }
+.io-row.out .io-name { color: var(--lane); font-weight: 600; }
+.io-row.fuel .io-name::after { content: " 🔥"; }
+.io-row.waste .io-name { color: #f0b2a3; font-weight: 400; }
+.io-row.waste .io-name::after { content: " · sobra"; color: var(--muted); }
+.io-row.waste .port { border-color: var(--red); border-style: dashed; }
+.io-row.hidden-src { opacity: 0.55; }
+.io-row.hidden-src .port { border-style: dashed; }
+.io-row:hover { background: rgba(255, 255, 255, 0.03); }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+.chip.collapsed {
+  border-color: var(--lane);
+  color: var(--text);
+  background: color-mix(in srgb, var(--lane) 12%, transparent);
+  cursor: pointer;
+}
+.chip img { width: 14px; height: 14px; }
+
+/* barra de ações ao passar o mouse (estilo n8n) */
+.node-toolbar {
+  position: absolute;
+  right: 8px;
+  top: -34px;
+  display: none;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 8px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+}
+.flow-node:hover .node-toolbar,
+.flow-node.selected .node-toolbar { display: flex; }
+.node-toolbar::after {
+  /* ponte invisível para a barra não sumir no caminho do mouse */
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  height: 10px;
+}
+.flow-stage .node-toolbar button { border: 0; background: transparent; padding: 3px 8px; }
+.flow-stage .node-toolbar button:hover { background: var(--hover); }
+
+/* ---------- painel de detalhes ---------- */
+.flow-details {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 4;
+  width: min(320px, calc(100% - 24px));
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  padding: 16px;
+  overflow-y: auto;
+  cursor: default;
+  transform: translateX(calc(100% + 24px));
+  transition: transform 200ms ease;
+}
+.flow-details.open { transform: none; }
+.flow-details header { display: flex; align-items: center; gap: 12px; }
+.flow-details header img { width: 44px; height: 44px; }
+.flow-details h2 { margin: 0; font-size: 18px; }
+.flow-details header p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
+.flow-details .close { margin-left: auto; align-self: flex-start; }
+.flow-details h3 {
+  margin: 18px 0 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.flow-details .node-row label { display: none; }
+.flow-details select { padding: 7px 8px; font-size: 13px; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat { background: var(--panel-2); border-radius: 8px; padding: 8px 10px; }
+.stat strong { display: block; font-size: 17px; }
+.stat span { font-size: 11px; color: var(--muted); }
+.io-list { display: grid; gap: 6px; }
+.io-list div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--panel-2);
+  font-size: 13px;
+}
+.io-list img { width: 22px; height: 22px; }
+.io-list span { margin-left: auto; color: var(--muted); font-size: 12px; }
+.flow-details .note { font-size: 12px; color: var(--muted); margin: 0; }
+
+/* ---------- aviso de mudança ---------- */
+.flow-toast {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  z-index: 4;
+  max-width: calc(100% - 32px);
+  transform: translateX(-50%);
+  background: var(--panel-2);
+  border: 1px solid var(--green);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 200ms;
+  pointer-events: none;
+}
+.flow-toast.show { opacity: 1; }
+
+/* ---------- seletor de nível ---------- */
+.flow-levels {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid rgba(70, 78, 90, 0.8);
+  border-radius: 9px;
+  background: rgba(28, 31, 36, 0.94);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.32);
+}
+.flow-layouts[hidden] { display: none; }
+.flow-levels button {
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 13px;
+}
+.flow-levels button:hover { background: var(--hover); border-color: transparent; }
+.flow-levels button.active {
+  border-color: var(--green);
+  background: rgba(212, 165, 87, 0.12);
+  color: var(--green);
+}
+
+/* ---------- nível 1: fábrica, saídas e adicionar ---------- */
+.flow-node.factory {
+  width: 660px;
+  border-color: color-mix(in srgb, var(--green) 55%, var(--line));
+}
+.flow-node.factory:hover { border-color: var(--green); }
+.node-icon.factory-mark {
+  overflow: hidden;
+  padding: 0;
+  border-color: color-mix(in srgb, var(--gold) 45%, transparent);
+  background: #1a1d22;
+}
+.node-icon.factory-mark img { width: 100%; height: 100%; object-fit: cover; }
+.machine-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 10px;
+}
+.machine-types span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px 2px 2px;
+  border-radius: 6px;
+  background: var(--input);
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.machine-types img { width: 20px; height: 20px; }
+.factory-open {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--green);
+  text-align: right;
+}
+
+.flow-node.goal { width: 210px; cursor: default; }
+.flow-stage .goal-remove {
+  margin-left: auto;
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 0 4px;
+}
+.flow-stage .goal-remove:hover { color: var(--red); }
+.goal-rate {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.flow-stage .goal-rate input,
+.flow-stage .add-output input {
+  width: 100%;
+  min-height: 0;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--input);
+  color: var(--text);
+  font-size: 13px;
+}
+.flow-stage .goal-rate input:focus,
+.flow-stage .add-output input:focus { outline: none; border-color: var(--green); }
+
+.flow-node.add-output {
+  width: 210px;
+  cursor: default;
+  border-style: dashed;
+  background: var(--panel);
+  display: grid;
+  gap: 8px;
+}
+.add-output strong { font-size: 13px; color: var(--green); }
+.add-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 230px;
+  overflow-y: auto;
+  margin: 0 -6px;
+}
+.flow-stage .add-list button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-start;
+  flex: none;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 3px 6px;
+  text-align: left;
+}
+.flow-stage .add-list button:hover { background: var(--panel-2); }
+.flow-stage .add-list button[hidden] { display: none; }
+.add-list img { width: 20px; height: 20px; }
+.add-list span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.add-list .chosen { color: var(--muted); }
+.add-list em { font-style: normal; color: var(--green); }
+
+/* ---------- combustível: padrão da fábrica e escolhas manuais ---------- */
+.factory-fuel {
+  margin: 10px -12px 0;
+  padding: 6px 12px 0;
+  border-top: 1px solid var(--line-soft);
+}
+.factory-fuel .io-title { padding: 2px 0; }
+.factory-fuel .node-row { margin-top: 4px; }
+.factory-fuel .node-row label { width: auto; white-space: nowrap; }
+.fuel-group {
+  margin-top: 10px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-2);
+}
+.fuel-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 12px;
+}
+.fuel-row img { width: 20px; height: 20px; flex: none; }
+.fuel-row span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fuel-row.manual span { color: var(--amber); }
+.fuel-note { margin: 6px 0 0; font-size: 11px; color: var(--muted); }
+.node-row.fuel-manual label { color: var(--amber); font-weight: 600; }
+
+/* ---------- fornalhas sob máquinas aquecidas ---------- */
+.furnace-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 4px 6px;
+  border-radius: 7px;
+  background: rgba(217, 148, 74, 0.08);
+  border: 1px dashed rgba(217, 148, 74, 0.35);
+  font-size: 11px;
+  color: var(--muted);
+}
+.furnace-line img { width: 20px; height: 20px; flex: none; }
+.furnace-line b { color: var(--text); }
+.furnace-line .heat { margin-left: auto; color: var(--amber); white-space: nowrap; }
+.flow-details .furnace-line { margin: 0 0 8px; font-size: 12px; }
+
+.fuel-row { display: block; margin-top: 6px; }
+.fuel-row-head { display: flex; align-items: center; gap: 6px; }
+.fuel-row-head em { font-style: normal; color: var(--muted); font-size: 11px; white-space: nowrap; }
+.fuel-row-selects { display: flex; gap: 4px; margin-top: 3px; }
+.flow-stage .fuel-row-selects select { flex: 1; width: auto; }
+.flow-stage .fuel-row-selects select.manual { border-color: var(--amber); color: var(--amber); }
+
+/* ---------- linha de produção de combustível ---------- */
+.flow-stage .fuel-line {
+  margin-top: 6px;
+  padding: 3px 8px;
+  border: 1px dashed rgba(217, 148, 74, 0.6);
+  background: rgba(217, 148, 74, 0.08);
+  color: var(--amber);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.flow-stage .fuel-line:hover { border-color: var(--amber); background: rgba(217, 148, 74, 0.16); }
+.flow-stage .fuel-line.on {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--green) 60%, transparent);
+  background: rgba(212, 165, 87, 0.1);
+  color: var(--green);
+}
+.fuel-line-row { display: flex; justify-content: flex-end; }
+.flow-node.raw .fuel-line { display: block; width: 100%; }
+.fuel-use {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 12px;
+}
+.fuel-use img { width: 20px; height: 20px; flex: none; }
+.fuel-use span { flex: 1; min-width: 0; }
+.fuel-use em { display: block; font-style: normal; font-size: 10px; color: var(--muted); }
+.fuel-use .fuel-line { margin-top: 0; }
+.fuel-use .not-craftable { font-style: normal; font-size: 10px; color: var(--muted); }
+
+/* ---------- select com ícones (icon-select.js) ---------- */
+.flow-stage .icon-select {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 3px 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--input);
+  font-size: 12px;
+  text-align: left;
+}
+.flow-stage .icon-select:hover,
+.flow-stage .icon-select[aria-expanded="true"] { border-color: var(--lane, var(--green)); }
+.flow-stage .icon-select.manual { border-color: var(--amber); color: var(--amber); }
+.flow-details .icon-select { padding: 6px 8px; font-size: 13px; }
+.icon-select img,
+.icon-select-popup img { width: 18px; height: 18px; flex: none; }
+.icon-select-blank { width: 18px; height: 18px; flex: none; }
+.icon-select-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.icon-select-caret { color: var(--muted); font-size: 10px; }
+
+.icon-select-popup {
+  position: fixed;
+  z-index: 20;
+  max-height: min(320px, 60vh);
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid rgba(70, 78, 90, 0.9);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5);
+}
+.icon-select-popup[hidden] { display: none; }
+.icon-select-popup button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  width: 100%;
+  min-height: 0;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  font-size: 13px;
+  text-align: left;
+}
+.icon-select-popup button:hover,
+.icon-select-popup button:focus-visible { background: var(--hover); outline: none; }
+.icon-select-popup button.selected { color: var(--green); background: rgba(212, 165, 87, 0.1); }
+
+/* ---------- ciclos fechados (o combustível realimenta a própria linha) ---------- */
+.edge.loop { stroke: color-mix(in srgb, var(--violet) 70%, #4d5560); stroke-dasharray: 2 5; stroke-linecap: round; }
+.loop-warning { color: var(--red); font-weight: 600; }
+
+/* ---------- fertilizante (Nursery) ---------- */
+.edge.fertilizer { stroke-dasharray: 6 5; stroke: color-mix(in srgb, var(--sage) 60%, #4d5560); }
+.io-row.fertilizer .io-name::after { content: " 🌱"; }
+.nursery-line {
+  background: rgba(156, 197, 138, 0.08);
+  border-color: rgba(156, 197, 138, 0.35);
+}
+.nursery-line .heat { color: var(--sage); }
+.seed-plot-line { background: rgba(217, 148, 74, 0.06); border-color: rgba(217, 148, 74, 0.3); }
+.seed-plot-line .heat { color: var(--muted); }
+.fuel-row-selects .fuel-note { flex: 1; margin: 0; align-self: center; color: var(--muted); }
+
+/* insumos produzidos pela própria fábrica, nas entradas do nó Fábrica */
+.io-title.internal { margin-top: 4px; color: #bba8d8; }
+.io-row.internal { background: rgba(169, 147, 207, 0.07); }
+.io-row.internal .io-name { color: var(--violet); }
+.io-row.internal .io-name em { font-style: normal; font-size: 10px; color: var(--muted); margin-left: 4px; }
+.io-row.internal .io-rate { color: var(--violet); }
+
+/* ---------- nó Fábrica em duas colunas (mais quadrado) ---------- */
+.factory-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 20px;
+  align-items: start;
+}
+/* entradas encostam na borda esquerda (portas de entrada), saídas na direita */
+.factory-grid .factory-in { margin: 10px 0 0 -12px; }
+.factory-grid .factory-out { margin: 10px -12px 0 0; }
+.factory-out .machine-types { justify-content: flex-end; margin: 4px 12px 0; }
+.factory-in .fuel-note { padding: 0 14px; }
+.factory-settings { border-top: 1px solid var(--line-soft); margin-top: 10px; }
+.factory-settings .factory-fuel { margin: 0; padding: 6px 0 0; border-top: 0; }
+
+/* blocos (subcadeias) podem ser arrastados; dois cliques dão zoom neles */
+.flow-group { cursor: move; }
+.flow-group:hover { border-color: color-mix(in srgb, var(--lane) 80%, transparent); }
+
+/* ---------- nível 3: máquinas físicas e esteiras de um bloco ---------- */
+.flow-levels .flow-detail-close { padding: 0 8px; color: var(--muted); }
+.flow-levels .flow-detail-close:hover { color: var(--red); }
+.flow-levels [hidden] { display: none; }
+.group-head .group-detail { margin-left: auto; border-color: color-mix(in srgb, var(--lane) 60%, var(--line)); color: var(--lane); }
+.group-head .group-detail + button { margin-left: 0; }
+
+.flow-node.unit {
+  width: 190px;
+  padding: 7px 10px 6px;
+  border-radius: 10px;
+}
+.flow-node.unit::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: -1.5px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--lane);
+}
+.flow-node.unit.partial { border-style: dashed; }
+.unit-top { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.unit-top img { width: 26px; height: 26px; flex: none; }
+.unit-top strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.unit-top span { margin-left: auto; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.flow-node.unit.partial .unit-top span { color: var(--amber); font-weight: 700; }
+.unit-load { height: 3px; margin: 5px 0 4px; border-radius: 3px; background: var(--line-soft); overflow: hidden; }
+.unit-load i { display: block; height: 100%; background: linear-gradient(90deg, var(--green), var(--amber)); }
+.unit-io {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 -10px;
+  padding: 2px 12px;
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.unit-io img { width: 16px; height: 16px; }
+.unit-io.out { justify-content: flex-end; color: var(--text); }
+.unit-io.fuel span::after { content: " 🔥"; }
+.unit-io.fertilizer span::after { content: " 🌱"; }
+.unit-io .port.in { left: -7px; }
+.unit-io .port.out { right: -7px; }
+
+.flow-node.belt {
+  width: 150px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 8px;
+  border-radius: 999px;
+  overflow: visible;
+  background: var(--panel);
+  border-color: color-mix(in srgb, var(--lane) 40%, var(--line));
+  font-size: 11px;
+}
+.flow-node.belt img { width: 16px; height: 16px; }
+.belt-name { color: var(--muted); white-space: nowrap; }
+.belt-rate { margin-left: auto; font-weight: 700; color: var(--lane); white-space: nowrap; }
+.belt-fill {
+  position: absolute;
+  left: 14px;
+  bottom: 3px;
+  max-width: calc(100% - 28px);
+  height: 2px;
+  border-radius: 2px;
+  background: var(--lane);
+  opacity: 0.7;
+}
+
+/* cadeado dos blocos: bloqueado por padrão */
+.flow-group.locked { cursor: zoom-in; }
+.group-head .group-lock { padding: 2px 6px; }
+.group-head .group-lock[aria-pressed="false"] { border-color: var(--amber); }
