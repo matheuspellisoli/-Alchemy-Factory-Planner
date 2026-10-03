@@ -72,17 +72,17 @@ async function loadData() {
         const key = planCodeKey(code);
         currentSavedId = (loadSavedFactories() || []).find((entry) => planCodeKey(entry.code) === key)?.id || "";
         const outputs = importPlanCode(code);
-        flowToast(`Fábrica carregada do link: ${outputs} saída${outputs === 1 ? "" : "s"}.`);
+        flowToast(t("toast.linkLoaded", { n: outputs }));
         return;
       } catch (error) {
-        flowToast(`O link tem um código de fábrica inválido: ${error.message}`);
+        flowToast(t("toast.linkInvalid", { msg: error.message }));
       }
     }
     render();
     return;
   }
 
-  throw new Error("Não foi possível carregar static/data/database.js.");
+  throw new Error(t("error.database"));
 }
 
 function normalizeState(data) {
@@ -162,7 +162,7 @@ function itemLabel(name, className = "") {
   return `<span class="entity-label ${className}">${iconHtml(resource?.icon, name)}<span>${escapeHtml(name)}</span></span>`;
 }
 
-function machineLabel(machine, fallback = "Máquina removida") {
+function machineLabel(machine, fallback = t("machine.removed")) {
   if (!machine) return `<span class="entity-label">${iconHtml("", fallback)}<span>${escapeHtml(fallback)}</span></span>`;
   return `<span class="entity-label">${iconHtml(machine.icon, machine.name)}<span>${escapeHtml(machine.name)}</span></span>`;
 }
@@ -428,7 +428,7 @@ function buildPlanPass(targetOutputs, feedback) {
         item,
         recipe: recipeEntry.name,
         machineId,
-        machine: machine?.name || "Máquina removida",
+        machine: machine?.name || t("machine.removed"),
         planting,
         demand,
         outputPerMinute,
@@ -499,7 +499,7 @@ function formatRate(value) {
 }
 
 function round(value) {
-  return Number(value || 0).toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+  return Number(value || 0).toLocaleString(currentLocale(), { maximumFractionDigits: 2 });
 }
 
 function readPositiveInput(input, minimum, current, commit = false) {
@@ -549,7 +549,7 @@ function renderMachines(plan) {
       <tr>
         <td>${itemLabel(entry.item)}</td>
         <td>${escapeHtml(entry.recipe)}</td>
-        <td>${machineLabel(machineById(entry.machineId), entry.machine)}${entry.fuelItem ? `<br /><span>Sobre ${entry.furnaceCount}× ${machineLabel(machineById(entry.furnaceId))} · ${itemLabel(entry.fuelItem)} ${formatRate(fuelRateFor(entry.heat, entry.fuelItem))}</span>` : ""}${entry.fertilizerItem ? `<br /><span>Fertilizante: ${itemLabel(entry.fertilizerItem)} ${formatRate(entry.fertilizerRate)}</span>` : ""}</td>
+        <td>${machineLabel(machineById(entry.machineId), entry.machine)}${entry.fuelItem ? `<br /><span>${t("table.on")} ${entry.furnaceCount}× ${machineLabel(machineById(entry.furnaceId))} · ${itemLabel(entry.fuelItem)} ${formatRate(fuelRateFor(entry.heat, entry.fuelItem))}</span>` : ""}${entry.fertilizerItem ? `<br /><span>${t("table.fertilizer")} ${itemLabel(entry.fertilizerItem)} ${formatRate(entry.fertilizerRate)}</span>` : ""}</td>
         <td>${formatRate(entry.demand)}</td>
         <td>${round(entry.machineCount)}</td>
         <td>
@@ -563,13 +563,13 @@ function renderMachines(plan) {
 function renderResources(plan) {
   const rawEntries = Object.entries(plan.raw).sort((a, b) => b[1] - a[1]);
   const wasteEntries = state.settings.showByproducts ? Object.entries(plan.waste).sort((a, b) => b[1] - a[1]) : [];
-  els.rawList.innerHTML = rawEntries.length ? rawEntries.map(resourceRow).join("") : `<div class="empty">Sem entrada externa.</div>`;
-  els.wasteList.innerHTML = wasteEntries.length ? wasteEntries.map(resourceRow).join("") : `<div class="empty">Sem sobra calculada.</div>`;
+  els.rawList.innerHTML = rawEntries.length ? rawEntries.map(resourceRow).join("") : `<div class="empty">${t("resources.noRaw")}</div>`;
+  els.wasteList.innerHTML = wasteEntries.length ? wasteEntries.map(resourceRow).join("") : `<div class="empty">${t("resources.noWaste")}</div>`;
 }
 
 function resourceRow([item, amount]) {
   const belts = Math.ceil(amount / state.settings.beltRate);
-  return `<div class="pill-row"><strong>${itemLabel(item)}</strong><span>${formatRate(amount)} · ${belts} linha${belts === 1 ? "" : "s"}</span></div>`;
+  return `<div class="pill-row"><strong>${itemLabel(item)}</strong><span>${formatRate(amount)} · ${t("resources.lines", { n: belts })}</span></div>`;
 }
 
 function renderResourceCatalog() {
@@ -596,7 +596,7 @@ function renderMachineCatalog() {
         ${iconHtml(entry.icon, entry.name, "catalog-icon")}
         <div>
           <strong>${escapeHtml(entry.name)}</strong>
-          <span>${escapeHtml(entry.category || "Geral")} · velocidade ${round(entry.speed || 1)}x${entry.heatSpeed ? ` · calor ${round(entry.heatSpeed)}` : ""}${entry.notes ? ` · ${escapeHtml(entry.notes)}` : ""}</span>
+          <span>${escapeHtml(entry.category || t("catalog.general"))} · ${t("catalog.speed", { n: round(entry.speed || 1) })}${entry.heatSpeed ? ` · ${t("catalog.heat", { n: round(entry.heatSpeed) })}` : ""}${entry.notes ? ` · ${escapeHtml(entry.notes)}` : ""}</span>
         </div>
       </div>
     `).join("");
@@ -618,11 +618,11 @@ function renderRecipes() {
 
 function resourceTypeLabel(type) {
   return {
-    raw: "Matéria-prima",
-    intermediate: "Intermediário",
-    product: "Produto",
-    byproduct: "Sobra"
-  }[type] || "Recurso";
+    raw: t("resourceType.raw"),
+    intermediate: t("resourceType.intermediate"),
+    product: t("resourceType.product"),
+    byproduct: t("resourceType.byproduct")
+  }[type] || t("resourceType.default");
 }
 
 function categoryLabel(category) {
@@ -632,13 +632,13 @@ function categoryLabel(category) {
 
 function formatIo(items) {
   const entries = Object.entries(items || {});
-  if (!entries.length) return "nada";
+  if (!entries.length) return t("io.nothing");
   return entries.map(([item, amount]) => `${round(amount)} ${item}`).join(", ");
 }
 
 function formatIoHtml(items) {
   const entries = Object.entries(items || {});
-  if (!entries.length) return "nada";
+  if (!entries.length) return t("io.nothing");
   return entries.map(([item, amount]) => `<span class="io-chip">${iconHtml(resourceByName(item)?.icon, item)}${round(amount)} ${escapeHtml(item)}</span>`).join("");
 }
 
@@ -649,20 +649,20 @@ function renderMetrics(plan) {
 
   const outputCount = plan.targetOutputs.length;
   // O nome é do usuário; sem nome, o campo mostra o título automático como placeholder.
-  const autoTitle = outputCount > 1 ? "Fábrica completa" : plan.targetItem || "Sem produto";
+  const autoTitle = outputCount > 1 ? t("plan.complete") : plan.targetItem || t("plan.noProduct");
   els.planTitle.placeholder = autoTitle;
   if (document.activeElement !== els.planTitle) els.planTitle.value = state.settings.factoryName || "";
   document.title = `${state.settings.factoryName || autoTitle} · Alchemy Factory Planner`;
   els.planSubtitle.textContent = outputCount
-    ? `${outputCount} saída${outputCount === 1 ? "" : "s"} com ${state.settings.speed}% de velocidade`
-    : "Adicione uma saída para começar";
-  document.querySelector("#statusBelt").textContent = `esteira ${state.settings.beltRate}/min · velocidade ${state.settings.speed}%`;
+    ? t("plan.subtitle", { n: outputCount, speed: state.settings.speed })
+    : t("plan.subtitleEmpty");
+  document.querySelector("#statusBelt").textContent = t("status.beltSpeed", { belt: state.settings.beltRate, speed: state.settings.speed });
   els.machineCount.textContent = round(totalMachines);
   els.rawCount.textContent = rawEntries.length;
   els.beltCount.textContent = totalBelts;
-  document.querySelector("#machineLabel").textContent = totalMachines === 1 ? "máquina" : "máquinas";
-  document.querySelector("#rawLabel").textContent = rawEntries.length === 1 ? "entrada" : "entradas";
-  document.querySelector("#beltLabel").textContent = totalBelts === 1 ? "linha" : "linhas";
+  document.querySelector("#machineLabel").textContent = t("status.machines", { n: totalMachines });
+  document.querySelector("#rawLabel").textContent = t("status.inputs", { n: rawEntries.length });
+  document.querySelector("#beltLabel").textContent = t("status.lines", { n: totalBelts });
 }
 
 function render() {
@@ -717,17 +717,17 @@ function planCodeKey(code) {
 }
 
 function currentFactoryName() {
-  return state.settings.factoryName || els.planTitle.placeholder || "Fábrica sem nome";
+  return state.settings.factoryName || els.planTitle.placeholder || t("plan.unnamed");
 }
 
 function saveCurrentFactory() {
   const list = loadSavedFactories();
   if (!list) {
-    flowToast("Não foi possível salvar: o armazenamento do navegador está bloqueado.");
+    flowToast(t("saved.blocked"));
     return;
   }
   if (!state.settings.targetOutputs.length) {
-    flowToast("Adicione ao menos uma saída antes de salvar.");
+    flowToast(t("saved.needOutput"));
     return;
   }
   const entry = {
@@ -742,11 +742,11 @@ function saveCurrentFactory() {
   if (index >= 0) list[index] = entry;
   else list.unshift(entry);
   if (!storeSavedFactories(list)) {
-    flowToast("Não foi possível salvar: o armazenamento do navegador está cheio ou bloqueado.");
+    flowToast(t("saved.full"));
     return;
   }
   currentSavedId = entry.id;
-  flowToast(`Fábrica salva: ${entry.name}.`);
+  flowToast(t("saved.saved", { name: entry.name }));
   renderSavedFactories();
 }
 
@@ -776,17 +776,17 @@ function openSavedFactory(id) {
       state.settings.flowLevel = level;
       render();
     }
-    flowToast(`Fábrica aberta: ${entry.name}.`);
+    flowToast(t("saved.opened", { name: entry.name }));
   } catch (error) {
     currentSavedId = "";
-    flowToast(`Não foi possível abrir ${entry.name}: ${error.message}`);
+    flowToast(t("saved.openFail", { name: entry.name, msg: error.message }));
   }
 }
 
 function deleteSavedFactory(id) {
   const list = loadSavedFactories() || [];
   const entry = list.find((item) => item.id === id);
-  if (!entry || !window.confirm(`Excluir a fábrica salva "${entry.name}"?`)) return;
+  if (!entry || !window.confirm(t("saved.confirmDelete", { name: entry.name }))) return;
   storeSavedFactories(list.filter((item) => item.id !== id));
   if (currentSavedId === id) currentSavedId = "";
   renderSavedFactories();
@@ -806,26 +806,26 @@ function renderSavedFactories() {
   const status = document.querySelector("[data-saved-status]");
   const list = loadSavedFactories();
   if (!list) {
-    status.textContent = "O armazenamento do navegador está bloqueado; não dá para salvar fábricas aqui.";
+    status.textContent = t("saved.storageBlocked");
     status.hidden = false;
     listEl.innerHTML = "";
     return;
   }
   const currentKey = state.settings.targetOutputs.length ? planCodeKey(encodePlanCode({ syncInputs: false })) : "";
   status.hidden = list.length > 0;
-  status.textContent = "Nenhuma fábrica salva ainda. Monte uma e clique em 💾 Salvar.";
+  status.textContent = t("saved.empty");
   listEl.innerHTML = list.map((entry) => {
     const current = entry.id === currentSavedId;
     const dirty = current && planCodeKey(entry.code) !== currentKey;
     const date = new Date(entry.updatedAt);
     return `
       <li class="${current ? "current" : ""}">
-        <button type="button" class="saved-open" data-saved-open="${escapeHtml(entry.id)}" title="Abrir esta fábrica">
-          <strong>${escapeHtml(entry.name)}${dirty ? ` <span class="saved-dirty" title="Há mudanças que ainda não foram salvas">● não salvo</span>` : ""}</strong>
+        <button type="button" class="saved-open" data-saved-open="${escapeHtml(entry.id)}" title="${escapeHtml(t("saved.openTitle"))}">
+          <strong>${escapeHtml(entry.name)}${dirty ? ` <span class="saved-dirty" title="${escapeHtml(t("saved.dirtyTitle"))}">${t("saved.dirty")}</span>` : ""}</strong>
           <em>${escapeHtml((entry.outputs || []).join(" · "))}</em>
-          <em>salva em ${date.toLocaleDateString("pt-BR")} ${date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</em>
+          <em>${t("saved.date", { date: `${date.toLocaleDateString(currentLocale())} ${date.toLocaleTimeString(currentLocale(), { hour: "2-digit", minute: "2-digit" })}` })}</em>
         </button>
-        <button type="button" class="saved-delete" data-saved-delete="${escapeHtml(entry.id)}" title="Excluir" aria-label="Excluir ${escapeHtml(entry.name)}">🗑</button>
+        <button type="button" class="saved-delete" data-saved-delete="${escapeHtml(entry.id)}" title="${escapeHtml(t("saved.delete"))}" aria-label="${escapeHtml(t("saved.deleteAria", { name: entry.name }))}">🗑</button>
       </li>`;
   }).join("");
 }
@@ -994,7 +994,7 @@ document.addEventListener("change", async (event) => {
 });
 
 // Abas viram uma gaveta sobre o fluxo; clicar de novo na aba aberta fecha.
-// Painel de baixo (como o terminal do VS Code): as abas ficam sempre à vista; o conteúdo abre
+// Painel de baixo: as abas ficam sempre à vista; o conteúdo abre
 // ao escolher uma aba e fecha ao clicar nela de novo, no ✕ ou no ▤ da barra de atividades.
 function openDrawer(tabId) {
   const open = Boolean(tabId);
@@ -1019,7 +1019,7 @@ document.querySelectorAll(".tab").forEach((tab) => {
   tab.addEventListener("click", () => openDrawer(tab.classList.contains("active") ? "" : tab.dataset.tab));
 });
 
-// Barra de atividades (como no VS Code): cada ícone mostra uma visão na barra lateral; clicar
+// Barra de atividades: cada ícone mostra uma visão na barra lateral; clicar
 // de novo no ícone ativo recolhe a barra lateral.
 let activeActivity = ""; // vazio: a primeira chamada abre a barra lateral (não recolhe)
 
@@ -1042,6 +1042,18 @@ setActivity("factories");
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") openDrawer("");
 });
+
+// Idioma: o seletor da barra de título troca a interface inteira na hora.
+const languageSelect = document.querySelector("#languageSelect");
+languageSelect.value = currentLanguage;
+languageSelect.addEventListener("change", () => setLanguage(languageSelect.value));
+window.addEventListener("languagechange-app", () => {
+  languageSelect.value = currentLanguage;
+  renderedTabs.clear();
+  render();
+  renderTabContent(document.querySelector(".tab.active")?.dataset.tab);
+});
+applyStaticTranslations();
 
 document.addEventListener("click", (event) => {
   const supplyLine = event.target.closest("[data-supply-line]")?.dataset.supplyLine;
@@ -1119,17 +1131,17 @@ function encodePlanCode({ syncInputs = true } = {}) {
 // Lança erro com mensagem amigável se o código não for válido.
 function decodePlanCode(code) {
   const text = String(code || "").replace(/\s+/g, "");
-  if (!text) throw new Error("Cole um código de fábrica.");
+  if (!text) throw new Error(t("code.empty"));
   const payload = text.startsWith(planCodePrefix) ? text.slice(planCodePrefix.length) : text;
   let snapshot;
   try {
     const bytes = Uint8Array.from(atob(payload), (char) => char.charCodeAt(0));
     snapshot = JSON.parse(new TextDecoder().decode(bytes));
   } catch {
-    throw new Error("Código inválido: não é um código de fábrica em base64.");
+    throw new Error(t("code.invalidBase64"));
   }
   if (!snapshot || typeof snapshot !== "object" || typeof snapshot.settings !== "object") {
-    throw new Error("Código inválido: faltam os dados da fábrica.");
+    throw new Error(t("code.invalidData"));
   }
   return snapshot;
 }
@@ -1155,10 +1167,10 @@ function importPlanCode(code) {
 function openPlanCodeDialog(mode) {
   const exporting = mode === "export";
   els.planCodeDialog.dataset.mode = mode;
-  els.planCodeTitle.textContent = exporting ? "Exportar fábrica" : "Importar fábrica";
+  els.planCodeTitle.textContent = exporting ? t("code.exportTitle") : t("code.importTitle");
   els.planCodeHint.textContent = exporting
-    ? "Copie este código para guardar ou compartilhar a fábrica."
-    : "Cole um código de fábrica (começa com AFP1.) e clique em Importar.";
+    ? t("code.exportHint")
+    : t("code.importHint");
   els.planCodeText.value = exporting ? encodePlanCode() : "";
   els.planCodeText.readOnly = exporting;
   els.planCodeError.textContent = "";
@@ -1176,19 +1188,19 @@ els.planCodeClose.addEventListener("click", () => els.planCodeDialog.close());
 els.planCodeCopy.addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(els.planCodeText.value);
-    els.planCodeCopy.textContent = "Copiado!";
+    els.planCodeCopy.textContent = t("code.copied");
   } catch {
     els.planCodeText.select();
-    els.planCodeCopy.textContent = "Use Ctrl+C";
+    els.planCodeCopy.textContent = t("code.useCtrlC");
   }
-  setTimeout(() => { els.planCodeCopy.textContent = "Copiar"; }, 1400);
+  setTimeout(() => { els.planCodeCopy.textContent = t("dialog.copy"); }, 1400);
 });
 
 els.planCodeImport.addEventListener("click", () => {
   try {
     const outputs = importPlanCode(els.planCodeText.value);
     els.planCodeDialog.close();
-    flowToast(`Fábrica importada: ${outputs} saída${outputs === 1 ? "" : "s"}.`);
+    flowToast(t("code.imported", { n: outputs }));
   } catch (error) {
     els.planCodeError.textContent = error.message;
   }
@@ -1207,6 +1219,6 @@ els.exportData.addEventListener("click", () => {
 });
 
 loadData().catch((error) => {
-  els.planTitle.value = "Erro ao carregar";
+  els.planTitle.value = t("error.loading");
   els.planSubtitle.textContent = error.message;
 });

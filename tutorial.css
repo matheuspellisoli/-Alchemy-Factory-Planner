@@ -339,3 +339,29 @@ td:first-child {
     display: none;
   }
 }
+
+/* troca de idioma do tutorial */
+.lang-links {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.lang-links a {
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.lang-links a.active,
+.lang-links a:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.lang-links + .open-app {
+  margin-left: 8px;
+}

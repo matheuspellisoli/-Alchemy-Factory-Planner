@@ -3,206 +3,95 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Alchemy Factory Planner</title>
+    <title data-i18n="landing.title">Alchemy Factory Planner</title>
+    <meta name="description" content="Planner for Alchemy Factory: machines, belts, furnaces, fuel, fertilizer and build order." />
     <link rel="icon" type="image/png" href="static/brand/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="styles.css?v=20261003-0315" />
-    <link rel="stylesheet" href="flow.css?v=20261003-0315" />
+    <link rel="stylesheet" href="landing.css?v=20261003-0430" />
   </head>
   <body>
-    <div class="workbench" id="workbench">
-      <header class="titlebar">
-        <div class="titlebar-brand">
-          <img class="brand-emblem" src="static/brand/emblem.png" alt="" />
-          <span class="brand-name">Alchemy Factory <b>Planner</b></span>
-        </div>
-        <div class="titlebar-center">
-          <input id="planTitle" class="plan-name" type="text" maxlength="60" placeholder="Plano" aria-label="Nome da fábrica" title="Clique para dar um nome à fábrica" />
-        </div>
-        <div class="titlebar-actions">
-          <button id="exportCode" class="title-button hud-code" type="button" title="Gerar um código em texto (base64) desta fábrica">⬆ Exportar</button>
-          <button id="importCode" class="title-button hud-code" type="button" title="Recriar uma fábrica a partir de um código">⬇ Importar</button>
-        </div>
-      </header>
-
-      <nav class="activitybar" aria-label="Barra de atividades">
-        <button type="button" class="activity" data-activity="factories" title="Fábricas salvas" aria-label="Fábricas salvas">🏭</button>
-        <button type="button" class="activity" data-activity="explorer" title="Ordem de montagem" aria-label="Ordem de montagem">🗂</button>
-        <button type="button" class="activity" data-activity="settings" id="settingsToggle" title="Ajustes" aria-label="Ajustes">⚙</button>
-        <a class="activity" href="tutorial.html" target="_blank" rel="noopener" title="Tutorial: como usar o planner" aria-label="Tutorial">❓</a>
-        <span class="activity-spacer"></span>
-        <button type="button" class="activity" data-activity-panel title="Mostrar/ocultar o painel de tabelas" aria-label="Painel de tabelas">▤</button>
+    <header class="top">
+      <a class="brand" href="index.html">
+        <img src="static/brand/emblem.png" alt="" />
+        <span>Alchemy Factory <b>Planner</b></span>
+      </a>
+      <nav class="top-links">
+        <a href="tutorial.html" data-i18n-tutorial data-i18n="landing.tutorial">Ver o tutorial</a>
+        <select id="languageSelect" class="language-select" data-i18n-aria="title.language" aria-label="Idioma">
+          <option value="pt">🌐 PT</option>
+          <option value="en">🌐 EN</option>
+          <option value="es">🌐 ES</option>
+        </select>
+        <a class="button primary small" href="planner.html" data-planner-link data-i18n="landing.open">Abrir o planner</a>
       </nav>
+    </header>
 
-      <aside class="sidebar" aria-label="Barra lateral">
-        <section id="savedFactories" class="sidebar-view" data-view="factories" aria-label="Fábricas salvas">
-          <header class="sidebar-title">Fábricas salvas</header>
-          <div class="saved-actions">
-            <button type="button" data-saved-save title="Salvar a fábrica atual neste navegador">💾 Salvar</button>
-            <button type="button" data-saved-new title="Começar uma fábrica vazia">+ Nova</button>
-          </div>
-          <p class="sidebar-empty" data-saved-status></p>
-          <ul class="saved-list" data-saved-list></ul>
-        </section>
-
-        <section id="flowLegend" class="sidebar-view" data-view="explorer" aria-label="Explorador">
-          <header class="sidebar-title">Ordem de montagem</header>
-          <p class="sidebar-empty" data-legend-empty>Adicione saídas na aba Geral para ver a ordem de montagem.</p>
-          <ol class="legend-list"></ol>
-        </section>
-
-        <section id="settingsPanel" class="sidebar-view" data-view="settings" aria-label="Ajustes do plano" hidden>
-          <header class="sidebar-title">Ajustes</header>
-          <div class="sidebar-body">
-            <div class="field">
-              <label for="beltRate">Esteira/min</label>
-              <input id="beltRate" type="number" min="1" step="1" value="60" />
-            </div>
-
-            <div class="field">
-              <label for="speed">Velocidade global</label>
-              <input id="speed" type="range" min="25" max="250" step="5" value="100" />
-              <div class="range-readout"><span id="speedValue">100%</span></div>
-            </div>
-
-            <div class="toggles">
-              <label><input id="roundMachines" type="checkbox" checked /> Arredondar máquinas</label>
-              <label><input id="showByproducts" type="checkbox" checked /> Mostrar sobras</label>
-            </div>
-
-            <div class="toolbar">
-              <button id="resetPlan" type="button">Resetar</button>
-              <button id="exportData" type="button">Exportar JSON</button>
-            </div>
-          </div>
-        </section>
-      </aside>
-
-      <main class="editor">
-        <div class="editor-tabs" role="tablist" aria-label="Níveis da fábrica">
-          <div class="flow-levels" role="group" aria-label="Nível da fábrica">
-            <button type="button" data-flow-level="1" title="Escolha as saídas e veja a fábrica como um bloco">◇ Geral</button>
-            <button type="button" data-flow-level="2" title="Máquinas e itens entre elas">⛓ Linha</button>
-            <span class="detail-tabs" data-detail-tabs></span>
-          </div>
-          <div class="editor-actions">
-            <div class="flow-levels flow-layouts" role="group" aria-label="Organização das máquinas">
-              <button type="button" data-flow-layout="clusters" title="Cada ingrediente da receita final vira uma subcadeia em caixa">Clusters</button>
-              <button type="button" data-flow-layout="columns" title="Grafo único da esquerda para a direita, sem caixas">Colunas</button>
-            </div>
-          </div>
+    <main>
+      <section class="hero">
+        <img class="hero-logo" src="static/brand/logo.png" alt="Alchemy Factory Planner" />
+        <h1 data-i18n="landing.tagline">Planeje sua fábrica de alquimia do começo ao fim</h1>
+        <p class="lead" data-i18n="landing.lead"></p>
+        <div class="cta">
+          <a class="button primary" href="planner.html" data-planner-link data-i18n="landing.open">Abrir o planner</a>
+          <a class="button" href="tutorial.html" data-i18n-tutorial data-i18n="landing.tutorial">Ver o tutorial</a>
         </div>
+      </section>
 
-        <div class="editor-body">
-          <div id="flowStage" class="flow-stage">
-            <div class="flow-world">
-              <div class="flow-groups"></div>
-              <svg class="flow-edges" width="1" height="1"></svg>
-              <div class="flow-nodes"></div>
-            </div>
-            <aside id="flowDetails" class="flow-details" aria-label="Detalhes da máquina"></aside>
-            <div id="flowToast" class="flow-toast" role="status"></div>
-          </div>
-
-          <div class="canvas-controls" aria-label="Navegação do canvas">
-            <div class="zoom-controls">
-              <button type="button" data-canvas-action="zoom-in" aria-label="Aproximar" title="Aproximar">+</button>
-              <button type="button" data-canvas-action="zoom-out" aria-label="Afastar" title="Afastar">-</button>
-            </div>
-            <div class="pan-controls" aria-label="Mover canvas">
-              <button type="button" data-canvas-action="pan-up" aria-label="Mover para cima" title="Mover para cima">↑</button>
-              <button type="button" data-canvas-action="pan-left" aria-label="Mover para a esquerda" title="Mover para a esquerda">←</button>
-              <button type="button" data-canvas-action="reset-view" aria-label="Centralizar" title="Centralizar">⌂</button>
-              <button type="button" data-canvas-action="pan-right" aria-label="Mover para a direita" title="Mover para a direita">→</button>
-              <button type="button" data-canvas-action="pan-down" aria-label="Mover para baixo" title="Mover para baixo">↓</button>
-            </div>
-          </div>
+      <section class="features">
+        <h2 data-i18n="landing.featuresTitle"></h2>
+        <div class="feature-grid">
+          <article><span class="feature-icon">🧮</span><h3 data-i18n="landing.f1.title"></h3><p data-i18n="landing.f1.text"></p></article>
+          <article><span class="feature-icon">🔥</span><h3 data-i18n="landing.f2.title"></h3><p data-i18n="landing.f2.text"></p></article>
+          <article><span class="feature-icon">🌱</span><h3 data-i18n="landing.f3.title"></h3><p data-i18n="landing.f3.text"></p></article>
+          <article><span class="feature-icon">🗂</span><h3 data-i18n="landing.f4.title"></h3><p data-i18n="landing.f4.text"></p></article>
+          <article><span class="feature-icon">⛓</span><h3 data-i18n="landing.f5.title"></h3><p data-i18n="landing.f5.text"></p></article>
+          <article><span class="feature-icon">💾</span><h3 data-i18n="landing.f6.title"></h3><p data-i18n="landing.f6.text"></p></article>
         </div>
+      </section>
 
-        <section class="panel" id="bottomPanel" aria-label="Tabelas">
-          <nav class="panel-tabs tabs" role="tablist" aria-label="Tabelas">
-            <button class="tab" data-tab="plan" type="button" role="tab" aria-selected="false">Plano</button>
-            <button class="tab" data-tab="resources" type="button" role="tab" aria-selected="false">Recursos</button>
-            <button class="tab" data-tab="machines" type="button" role="tab" aria-selected="false">Máquinas</button>
-            <button class="tab" data-tab="recipes" type="button" role="tab" aria-selected="false">Receitas</button>
-            <button class="panel-close" type="button" data-panel-close title="Fechar o painel" aria-label="Fechar o painel" hidden>✕</button>
-          </nav>
-          <div id="drawerPanels" class="panel-body" hidden>
-          <section id="plan" class="tab-panel">
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Produto</th>
-                    <th>Receita</th>
-                    <th>Dispositivo</th>
-                    <th>Taxa</th>
-                    <th>Máquinas</th>
-                    <th>Carga</th>
-                  </tr>
-                </thead>
-                <tbody id="machinesBody"></tbody>
-              </table>
-            </div>
-          </section>
+      <section class="how">
+        <h2 data-i18n="landing.howTitle"></h2>
+        <ol class="how-steps">
+          <li><b>1</b><span data-i18n="landing.step1"></span></li>
+          <li><b>2</b><span data-i18n="landing.step2"></span></li>
+          <li><b>3</b><span data-i18n="landing.step3"></span></li>
+        </ol>
+      </section>
 
-          <section id="resources" class="tab-panel">
-            <div class="resource-grid">
-              <div>
-                <h3>Matérias-primas</h3>
-                <div id="rawList" class="stack-list"></div>
-              </div>
-              <div>
-                <h3>Sobras</h3>
-                <div id="wasteList" class="stack-list"></div>
-              </div>
-            </div>
-            <div id="resourceCatalog" class="catalog-list"></div>
-          </section>
-
-          <section id="machines" class="tab-panel">
-            <div id="machineCatalog" class="catalog-list"></div>
-          </section>
-
-          <section id="recipes" class="tab-panel">
-            <div id="recipeList" class="recipe-list"></div>
-          </section>
-          </div>
-        </section>
-      </main>
-
-      <footer class="statusbar" aria-label="Métricas do plano">
-        <span class="status-item status-accent" id="planSubtitle"></span>
-        <span class="status-item"><strong id="machineCount">0</strong> <span id="machineLabel">máquinas</span></span>
-        <span class="status-item"><strong id="rawCount">0</strong> <span id="rawLabel">entradas</span></span>
-        <span class="status-item"><strong id="beltCount">0</strong> <span id="beltLabel">linhas</span></span>
-        <span class="status-spacer"></span>
-        <span class="status-item" id="statusBelt"></span>
-        <span class="status-item" id="statusZoom"></span>
-      </footer>
-    </div>
-
-    <dialog id="planCodeDialog" class="hud-card plan-code-dialog" aria-labelledby="planCodeTitle">
-      <form method="dialog" class="plan-code-form">
-        <header>
-          <h2 id="planCodeTitle">Código da fábrica</h2>
-          <button id="planCodeClose" type="button" aria-label="Fechar">✕</button>
-        </header>
-        <p id="planCodeHint" class="plan-code-hint"></p>
-        <textarea id="planCodeText" rows="6" spellcheck="false" aria-label="Código da fábrica em base64"></textarea>
-        <p id="planCodeError" class="plan-code-error" role="alert"></p>
-        <div class="plan-code-actions">
-          <button id="planCodeCopy" type="button">Copiar</button>
-          <button id="planCodeImport" type="button">Importar</button>
+      <section class="shots">
+        <h2 data-i18n="landing.shotsTitle"></h2>
+        <div class="shot-grid">
+          <figure><img src="static/tutorial/geral.jpg" data-shot="geral" alt="" loading="lazy" /><figcaption data-i18n="landing.shot1"></figcaption></figure>
+          <figure><img src="static/tutorial/linha.jpg" data-shot="linha" alt="" loading="lazy" /><figcaption data-i18n="landing.shot2"></figcaption></figure>
+          <figure><img src="static/tutorial/bloco.jpg" data-shot="bloco" alt="" loading="lazy" /><figcaption data-i18n="landing.shot3"></figcaption></figure>
         </div>
-      </form>
-    </dialog>
+        <div class="cta">
+          <a class="button primary" href="planner.html" data-planner-link data-i18n="landing.open">Abrir o planner</a>
+        </div>
+      </section>
+    </main>
 
-    <script src="static/data/database.js?v=20261003-0315"></script>
-    <script src="icon-select.js?v=20261003-0315"></script>
-    <script src="flow.js?v=20261003-0315"></script>
-    <script src="app.js?v=20261003-0315"></script>
+    <footer class="footer">
+      <img src="static/brand/emblem.png" alt="" />
+      <p data-i18n="landing.footer"></p>
+    </footer>
+
+    <script src="i18n.js?v=20261003-0430"></script>
+    <script>
+      // Página inicial: aplica o idioma e leva o idioma escolhido para o planner.
+      const select = document.querySelector("#languageSelect");
+      function syncLanguage() {
+        applyStaticTranslations();
+        select.value = currentLanguage;
+        document.querySelectorAll("[data-planner-link]").forEach((link) => { link.href = `planner.html?lang=${currentLanguage}`; });
+        const shotDir = currentLanguage === "pt" ? "static/tutorial/" : `static/tutorial/${currentLanguage}/`;
+        document.querySelectorAll("[data-shot]").forEach((img) => { img.src = `${shotDir}${img.dataset.shot}.jpg`; });
+      }
+      select.addEventListener("change", () => setLanguage(select.value));
+      window.addEventListener("languagechange-app", syncLanguage);
+      syncLanguage();
+    </script>
   </body>
 </html>

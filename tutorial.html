@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="tutorial.css?v=20261003-0305" />
+    <link rel="stylesheet" href="tutorial.css?v=20261003-0430" />
   </head>
   <body>
     <header class="top">
@@ -17,7 +17,12 @@
         <span>Alchemy Factory <b>Planner</b></span>
       </a>
       <span class="top-title">Tutorial</span>
-      <a class="open-app" href="index.html">Abrir o planner →</a>
+      <nav class="lang-links" aria-label="Idioma">
+        <a href="tutorial.html" class="active" hreflang="pt-BR">PT</a>
+        <a href="tutorial.en.html" hreflang="en">EN</a>
+        <a href="tutorial.es.html" hreflang="es">ES</a>
+      </nav>
+      <a class="open-app" href="planner.html?lang=pt">Abrir o planner →</a>
     </header>
 
     <div class="layout">
@@ -61,17 +66,17 @@
 
         <section id="tela">
           <h2><span>2</span> Conhecendo a tela</h2>
-          <p>A tela segue o estilo do VS Code, com o diagrama da fábrica no lugar do editor.</p>
+          <p>A tela é dividida em áreas fixas, com o diagrama da fábrica no centro.</p>
           <figure>
             <img src="static/tutorial/geral.jpg" alt="Tela do planner com a fábrica de Growth Potion na aba Geral" loading="lazy" />
-            <figcaption>Barra de título, barra de atividades à esquerda, abas do editor, diagrama, painel de tabelas e barra de status.</figcaption>
+            <figcaption>Barra de título, barra de atividades à esquerda, abas, diagrama, painel de tabelas e barra de status.</figcaption>
           </figure>
           <dl class="parts">
             <dt>Barra de título</dt>
-            <dd>Nome da fábrica (clique para editar) e os botões <kbd>⬆ Exportar</kbd> e <kbd>⬇ Importar</kbd>.</dd>
+            <dd>Nome da fábrica (clique para editar), os botões <kbd>⬆ Exportar</kbd> e <kbd>⬇ Importar</kbd> e o seletor de idioma.</dd>
             <dt>Barra de atividades</dt>
             <dd><kbd>🏭</kbd> fábricas salvas · <kbd>🗂</kbd> ordem de montagem · <kbd>⚙</kbd> ajustes · <kbd>❓</kbd> este tutorial · <kbd>▤</kbd> painel de tabelas. Clicar no ícone ativo recolhe a barra lateral.</dd>
-            <dt>Abas do editor</dt>
+            <dt>Abas</dt>
             <dd><kbd>◇ Geral</kbd> (visão de entradas e saídas), <kbd>⛓ Linha</kbd> (todas as máquinas) e uma aba <kbd>▦ Linha …</kbd> para cada bloco que você abrir.</dd>
             <dt>Barra de status</dt>
             <dd>Saídas, total de máquinas, entradas, linhas de esteira, velocidade e zoom.</dd>
@@ -254,7 +259,7 @@
             <li><b>Sobras:</b> aparecem em vermelho tracejado. Elas indicam itens que você pode aproveitar em outra fábrica.</li>
             <li><b>Recarregar:</b> se algo parecer desatualizado depois de uma atualização do app, recarregue com <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>.</li>
           </ul>
-          <p class="back"><a class="open-app" href="index.html">Abrir o planner →</a></p>
+          <p class="back"><a class="open-app" href="planner.html?lang=pt">Abrir o planner →</a></p>
         </section>
       </main>
     </div>

@@ -12,6 +12,34 @@ const plural = (n, one, many) => (Number(n) === 1 ? one : many);
 
 const I18N = {
   pt: {
+    // página inicial (index.html)
+    "landing.title": "Alchemy Factory Planner · planeje sua fábrica",
+    "landing.tagline": "Planeje sua fábrica de alquimia do começo ao fim",
+    "landing.lead": "Escolha o que quer produzir e o planner calcula as máquinas, esteiras, fornalhas, combustível e fertilizante, e mostra a ordem para montar cada linha.",
+    "landing.open": "Abrir o planner",
+    "landing.tutorial": "Ver o tutorial",
+    "landing.featuresTitle": "O que ele faz por você",
+    "landing.f1.title": "Contas automáticas",
+    "landing.f1.text": "Máquinas inteiras, carga de cada uma, entradas e sobras por minuto, com base nos dados do Alchemy Factory Codex.",
+    "landing.f2.title": "Calor e combustível",
+    "landing.f2.text": "Cada máquina quente sobre a sua fornalha, com o consumo real de combustível e a opção de produzir o combustível na própria fábrica.",
+    "landing.f3.title": "Plantio e fertilizante",
+    "landing.f3.text": "Compare Nursery e Seed Plot e veja como o fertilizante muda a quantidade de máquinas.",
+    "landing.f4.title": "Ordem de montagem",
+    "landing.f4.text": "A fábrica dividida em blocos, na ordem certa para construir, com zoom em cada um.",
+    "landing.f5.title": "Cada máquina e cada esteira",
+    "landing.f5.text": "Abra uma linha para ver a montagem física: cada máquina, cada esteira e o que passa por elas.",
+    "landing.f6.title": "Salve e compartilhe",
+    "landing.f6.text": "Guarde fábricas no navegador, exporte um código ou mande o link com a fábrica pronta.",
+    "landing.howTitle": "Em três passos",
+    "landing.step1": "Escolha os produtos e a quantidade por minuto.",
+    "landing.step2": "Ajuste receitas, combustível, fornalhas e fertilizante.",
+    "landing.step3": "Monte os blocos na ordem indicada.",
+    "landing.shotsTitle": "Veja por dentro",
+    "landing.shot1": "Visão geral da fábrica",
+    "landing.shot2": "Linhas e ordem de montagem",
+    "landing.shot3": "Cada máquina e cada esteira",
+    "landing.footer": "Dados de receitas, máquinas, calor e nutrientes do Alchemy Factory Codex. Ferramenta feita por fãs, sem vínculo com os criadores do jogo.",
     // estáticos (index.html)
     "title.app": "Alchemy Factory Planner",
     "title.namePlaceholder": "Plano",
@@ -255,6 +283,33 @@ const I18N = {
   },
 
   en: {
+    "landing.title": "Alchemy Factory Planner · plan your factory",
+    "landing.tagline": "Plan your alchemy factory from start to finish",
+    "landing.lead": "Pick what you want to produce and the planner works out the machines, belts, furnaces, fuel and fertilizer, and shows the order to build each line.",
+    "landing.open": "Open the planner",
+    "landing.tutorial": "Read the tutorial",
+    "landing.featuresTitle": "What it does for you",
+    "landing.f1.title": "Automatic math",
+    "landing.f1.text": "Whole machines, the load of each one, inputs and byproducts per minute, based on Alchemy Factory Codex data.",
+    "landing.f2.title": "Heat and fuel",
+    "landing.f2.text": "Every hot machine on its own furnace, with real fuel consumption and the option to produce the fuel inside the factory.",
+    "landing.f3.title": "Planting and fertilizer",
+    "landing.f3.text": "Compare Nursery and Seed Plot and see how fertilizer changes the number of machines.",
+    "landing.f4.title": "Build order",
+    "landing.f4.text": "The factory split into blocks, in the right order to build, with zoom on each one.",
+    "landing.f5.title": "Every machine and every belt",
+    "landing.f5.text": "Open a line to see the physical layout: each machine, each belt and what flows through them.",
+    "landing.f6.title": "Save and share",
+    "landing.f6.text": "Keep factories in the browser, export a code or send a link with the factory ready to open.",
+    "landing.howTitle": "In three steps",
+    "landing.step1": "Choose the products and the amount per minute.",
+    "landing.step2": "Adjust recipes, fuel, furnaces and fertilizer.",
+    "landing.step3": "Build the blocks in the suggested order.",
+    "landing.shotsTitle": "Take a look inside",
+    "landing.shot1": "Factory overview",
+    "landing.shot2": "Lines and build order",
+    "landing.shot3": "Every machine and every belt",
+    "landing.footer": "Recipe, machine, heat and nutrient data from the Alchemy Factory Codex. A fan-made tool, not affiliated with the game's creators.",
     "title.app": "Alchemy Factory Planner",
     "title.namePlaceholder": "Plan",
     "title.nameAria": "Factory name",
@@ -495,6 +550,33 @@ const I18N = {
   },
 
   es: {
+    "landing.title": "Alchemy Factory Planner · planifica tu fábrica",
+    "landing.tagline": "Planifica tu fábrica de alquimia de principio a fin",
+    "landing.lead": "Elige qué quieres producir y el planner calcula las máquinas, cintas, hornos, combustible y fertilizante, y muestra el orden para montar cada línea.",
+    "landing.open": "Abrir el planner",
+    "landing.tutorial": "Ver el tutorial",
+    "landing.featuresTitle": "Lo que hace por ti",
+    "landing.f1.title": "Cálculos automáticos",
+    "landing.f1.text": "Máquinas enteras, la carga de cada una, entradas y sobrantes por minuto, con datos del Alchemy Factory Codex.",
+    "landing.f2.title": "Calor y combustible",
+    "landing.f2.text": "Cada máquina caliente sobre su horno, con el consumo real de combustible y la opción de producir el combustible en la propia fábrica.",
+    "landing.f3.title": "Siembra y fertilizante",
+    "landing.f3.text": "Compara Nursery y Seed Plot y mira cómo el fertilizante cambia la cantidad de máquinas.",
+    "landing.f4.title": "Orden de montaje",
+    "landing.f4.text": "La fábrica dividida en bloques, en el orden correcto para construir, con zoom en cada uno.",
+    "landing.f5.title": "Cada máquina y cada cinta",
+    "landing.f5.text": "Abre una línea para ver el montaje físico: cada máquina, cada cinta y lo que pasa por ellas.",
+    "landing.f6.title": "Guarda y comparte",
+    "landing.f6.text": "Guarda fábricas en el navegador, exporta un código o envía el enlace con la fábrica lista.",
+    "landing.howTitle": "En tres pasos",
+    "landing.step1": "Elige los productos y la cantidad por minuto.",
+    "landing.step2": "Ajusta recetas, combustible, hornos y fertilizante.",
+    "landing.step3": "Monta los bloques en el orden indicado.",
+    "landing.shotsTitle": "Échale un vistazo",
+    "landing.shot1": "Vista general de la fábrica",
+    "landing.shot2": "Líneas y orden de montaje",
+    "landing.shot3": "Cada máquina y cada cinta",
+    "landing.footer": "Datos de recetas, máquinas, calor y nutrientes del Alchemy Factory Codex. Herramienta hecha por fans, sin vínculo con los creadores del juego.",
     "title.app": "Alchemy Factory Planner",
     "title.namePlaceholder": "Plan",
     "title.nameAria": "Nombre de la fábrica",
@@ -740,7 +822,14 @@ const languageStorageKey = "alchemy-factory-planner:language";
 // Idioma: ?lang= na URL, depois a escolha guardada, depois o idioma do navegador; senão inglês.
 function detectLanguage() {
   const fromUrl = new URLSearchParams(window.location.search).get("lang");
-  if (LANGUAGES[fromUrl]) return fromUrl;
+  if (LANGUAGES[fromUrl]) {
+    try {
+      localStorage.setItem(languageStorageKey, fromUrl);
+    } catch {
+      // sem armazenamento: vale só nesta página
+    }
+    return fromUrl;
+  }
   try {
     const saved = localStorage.getItem(languageStorageKey);
     if (LANGUAGES[saved]) return saved;
@@ -782,6 +871,16 @@ function setLanguage(lang) {
     localStorage.setItem(languageStorageKey, lang);
   } catch {
     // a escolha vale só nesta sessão
+  }
+  // O ?lang= do link já cumpriu o papel; sem ele, recarregar usa a escolha guardada.
+  try {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("lang")) {
+      url.searchParams.delete("lang");
+      history.replaceState(null, "", url);
+    }
+  } catch {
+    // sem permissão para mexer na URL
   }
   applyStaticTranslations();
   window.dispatchEvent(new CustomEvent("languagechange-app", { detail: { lang } }));

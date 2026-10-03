@@ -82,7 +82,7 @@ function buildFlowGraph(plan) {
   // insumo (combustível, fertilizante) não puxam a linha do insumo para dentro do bloco:
   // cada insumo produzido na fábrica ganha um bloco próprio.
   const targets = plan.targetOutputs.map((output) => output.item).filter((item) => machineByItem.has(item));
-  const lanes = [{ id: "final", name: "Receita final", kind: "final", color: FLOW_FINAL_COLOR, root: "" }];
+  const lanes = [{ id: "final", name: t("lane.final"), kind: "final", color: FLOW_FINAL_COLOR, root: "" }];
   const laneOf = new Map(targets.map((item) => [item, "final"]));
   const isSupplyEdge = (edge) => edge.fuel || edge.fertilizer;
   const follows = (edge) => !edge.raw && !edge.loop && !isSupplyEdge(edge);
@@ -312,14 +312,14 @@ function buildDetailGraph(base, laneId) {
     const outsideRate = outside.reduce((sum, edge) => sum + edge.rate, 0);
     const destinations = [...new Set(outside.map((edge) => {
       const target = byId.get(edge.to);
-      return target?.type === "output" ? "produto final" : `bloco ${laneName(target)}`;
+      return target?.type === "output" ? t("dest.final") : t("dest.block", { name: laneName(target) });
     }))].join(", ");
     stream({
       item: process.item,
       rate: total,
       producers: producersOf(process, total),
       consumers: consumersOf(inside),
-      sink: outsideRate > 0 ? { id: `sink:${process.id}`, type: "output", item: process.item, lane: laneId, col: col + 2, rate: outsideRate, label: `para ${destinations}` } : null,
+      sink: outsideRate > 0 ? { id: `sink:${process.id}`, type: "output", item: process.item, lane: laneId, col: col + 2, rate: outsideRate, label: t("dest.to", { list: destinations }) } : null,
       col: col + 1
     });
     // Sobras.
@@ -341,7 +341,7 @@ function buildDetailGraph(base, laneId) {
     const producer = from?.type === "item" ? from.producer : "";
     if (producer && inBlock(producer)) return;
     const key = `${edge.item}|${flowKind(edge)}`;
-    const group = external.get(key) || { item: edge.item, edges: [], origin: from?.type === "raw" ? "de fora" : `do bloco ${laneName(byId.get(producer))}` };
+    const group = external.get(key) || { item: edge.item, edges: [], origin: from?.type === "raw" ? t("origin.outside") : t("origin.block", { name: laneName(byId.get(producer)) }) };
     group.edges.push(edge);
     external.set(key, group);
   });
@@ -444,7 +444,7 @@ function flowRecipeSelect(item) {
   const selected = selectedRecipeFor(item)?.id;
   return `
     <div class="node-row">
-      <label>Receita</label>
+      <label>${t("label.recipe")}</label>
       <select data-icon-select data-recipe-picker="${escapeHtml(item)}">
         ${options.map((entry) => `<option value="${escapeHtml(entry.id)}"${flowIconAttr(machineById(entry.machineId)?.icon)} ${entry.id === selected ? "selected" : ""}>${escapeHtml(entry.name)}</option>`).join("")}
       </select>
@@ -456,7 +456,7 @@ function flowFuelOptions(item) {
   const manual = isManualFuel(item);
   const current = selectedFuelFor(item);
   return `
-    <option value=""${flowIconAttr(itemIcon(defaultFuelItem()))} ${manual ? "" : "selected"}>Padrão (${escapeHtml(defaultFuelItem())})</option>
+    <option value=""${flowIconAttr(itemIcon(defaultFuelItem()))} ${manual ? "" : "selected"}>${escapeHtml(t("option.default", { name: defaultFuelItem() }))}</option>
     ${fuelItems().map((fuel) => `<option value="${escapeHtml(fuel)}"${flowIconAttr(itemIcon(fuel))} ${manual && fuel === current ? "selected" : ""}>${escapeHtml(fuel)}</option>`).join("")}`;
 }
 
@@ -465,7 +465,7 @@ function flowFuelSelect(entry) {
   const manual = isManualFuel(entry.item);
   return `
     <div class="node-row ${manual ? "fuel-manual" : ""}">
-      <label title="${manual ? "Escolhido manualmente" : "Segue o padrão da fábrica"}">🔥 ${manual ? "Manual" : "Comb."}</label>
+      <label title="${manual ? t("choice.manual") : t("choice.follows")}">🔥 ${manual ? t("label.manual") : t("label.fuel")}</label>
       <select data-icon-select data-fuel-picker="${escapeHtml(entry.item)}">${flowFuelOptions(entry.item)}</select>
     </div>
     ${canProduceSupply(entry.fuelItem) ? `<div class="fuel-line-row">${flowSupplyLineButton(entry.fuelItem)}</div>` : ""}`;
@@ -477,8 +477,8 @@ function flowSupplyLineButton(fuelItem) {
   const produced = isSupplyProduced(fuelItem);
   return `
     <button type="button" class="fuel-line ${produced ? "on" : ""}" data-supply-line="${escapeHtml(fuelItem)}"
-      title="${produced ? `${escapeHtml(fuelItem)} é produzido na fábrica — clique para trazer de fora` : `Adicionar à fábrica uma linha que produz ${escapeHtml(fuelItem)}`}">
-      ${produced ? "✓ Linha própria" : "+ Linha de produção"}
+      title="${escapeHtml(produced ? t("supply.producedTitle", { item: fuelItem }) : t("supply.addTitle", { item: fuelItem }))}">
+      ${produced ? t("supply.own") : t("supply.add")}
     </button>`;
 }
 
@@ -487,7 +487,7 @@ function flowFertilizerOptions(item) {
   const manual = isManualFertilizer(item);
   const current = selectedFertilizerFor(item);
   return `
-    <option value=""${flowIconAttr(itemIcon(defaultFertilizerItem()))} ${manual ? "" : "selected"}>Padrão (${escapeHtml(defaultFertilizerItem())})</option>
+    <option value=""${flowIconAttr(itemIcon(defaultFertilizerItem()))} ${manual ? "" : "selected"}>${escapeHtml(t("option.default", { name: defaultFertilizerItem() }))}</option>
     ${fertilizerItems().map((fertilizer) => `<option value="${escapeHtml(fertilizer)}"${flowIconAttr(itemIcon(fertilizer))} ${manual && fertilizer === current ? "selected" : ""}>${escapeHtml(fertilizer)}</option>`).join("")}`;
 }
 
@@ -496,7 +496,7 @@ function flowFertilizerSelect(entry) {
   const manual = isManualFertilizer(entry.item);
   return `
     <div class="node-row ${manual ? "fuel-manual" : ""}">
-      <label title="${manual ? "Escolhido manualmente" : "Segue o padrão da fábrica"}">🌱 ${manual ? "Manual" : "Fertil."}</label>
+      <label title="${manual ? t("choice.manual") : t("choice.follows")}">🌱 ${manual ? t("label.manual") : t("label.fertilizer")}</label>
       <select data-icon-select data-fertilizer-picker="${escapeHtml(entry.item)}">${flowFertilizerOptions(entry.item)}</select>
     </div>
     ${canProduceSupply(entry.fertilizerItem) ? `<div class="fuel-line-row">${flowSupplyLineButton(entry.fertilizerItem)}</div>` : ""}`;
@@ -508,7 +508,7 @@ function flowPlantingOptions(item) {
   const current = selectedPlantingFor(item);
   const fallback = machineById(defaultPlantingId());
   return `
-    <option value=""${flowIconAttr(fallback?.icon)} ${manual ? "" : "selected"}>Padrão (${escapeHtml(fallback?.name || "")})</option>
+    <option value=""${flowIconAttr(fallback?.icon)} ${manual ? "" : "selected"}>${escapeHtml(t("option.default", { name: fallback?.name || "" }))}</option>
     ${plantingMachines().map((machine) => `<option value="${escapeHtml(machine.id)}"${flowIconAttr(machine.icon)} ${manual && machine.id === current ? "selected" : ""}>${escapeHtml(machine.name)}</option>`).join("")}`;
 }
 
@@ -517,7 +517,7 @@ function flowPlantingSelect(entry) {
   const manual = isManualPlanting(entry.item);
   return `
     <div class="node-row ${manual ? "fuel-manual" : ""}">
-      <label title="${manual ? "Escolhido manualmente" : "Segue o padrão da fábrica"}">🪴 ${manual ? "Manual" : "Plantio"}</label>
+      <label title="${manual ? t("choice.manual") : t("choice.follows")}">🪴 ${manual ? t("label.manual") : t("label.planting")}</label>
       <select data-icon-select data-planting-picker="${escapeHtml(entry.item)}">${flowPlantingOptions(entry.item)}</select>
     </div>`;
 }
@@ -526,17 +526,17 @@ function flowPlantingSelect(entry) {
 function flowNurseryLine(entry) {
   if (entry.machineId === SEED_PLOT_ID) {
     return `
-      <div class="furnace-line nursery-line seed-plot-line" title="O Seed Plot gasta a semente e não usa fertilizante">
-        <span><b>${round(entry.outputPerMinute)}/min</b> por máquina</span>
-        <span class="heat">gasta semente · sem fertilizante</span>
+      <div class="furnace-line nursery-line seed-plot-line" title="${escapeHtml(t("seedPlot.title"))}">
+        <span><b>${round(entry.outputPerMinute)}/min</b> ${t("perMachine")}</span>
+        <span class="heat">${t("seedPlot.note")}</span>
       </div>`;
   }
   if (!entry.fertilizerItem) return "";
   const fertilizer = resourceByName(entry.fertilizerItem);
   return `
-    <div class="furnace-line nursery-line" title="${escapeHtml(entry.fertilizerItem)}: ${fertilizer?.nutrientValue || 0} V por unidade, ${fertilizer?.nutrientsPerSecond || 0} V/s. A semente fica plantada e não é consumida.">
+    <div class="furnace-line nursery-line" title="${escapeHtml(t("nursery.title", { item: entry.fertilizerItem, value: fertilizer?.nutrientValue || 0, speed: fertilizer?.nutrientsPerSecond || 0 }))}">
       ${flowIcon(itemIcon(entry.fertilizerItem))}
-      <span><b>${round(entry.outputPerMinute)}/min</b> por máquina</span>
+      <span><b>${round(entry.outputPerMinute)}/min</b> ${t("perMachine")}</span>
       <span class="heat">🌱 ${formatRate(entry.fertilizerRate)}</span>
     </div>`;
 }
@@ -553,37 +553,37 @@ function flowFactoryFertilizerHtml(plan) {
         <div class="fuel-row-head">
           ${flowIcon(machine?.icon)}
           <span>${escapeHtml(entry.item)}</span>
-          <em>${round(entry.machineCount)}× · ${round(entry.outputPerMinute)}/min cada</em>
+          <em>${t("fert.each", { count: round(entry.machineCount), rate: round(entry.outputPerMinute) })}</em>
         </div>
         <div class="fuel-row-selects">
-          ${entry.planting ? `<select data-icon-select data-planting-picker="${escapeHtml(entry.item)}" aria-label="Plantio de ${escapeHtml(entry.item)}" class="${isManualPlanting(entry.item) ? "manual" : ""}">${flowPlantingOptions(entry.item)}</select>` : ""}
-          ${entry.fertilizerItem ? `<select data-icon-select data-fertilizer-picker="${escapeHtml(entry.item)}" aria-label="Fertilizante de ${escapeHtml(entry.item)}" class="${isManualFertilizer(entry.item) ? "manual" : ""}">${flowFertilizerOptions(entry.item)}</select>` : `<span class="fuel-note">sem fertilizante</span>`}
+          ${entry.planting ? `<select data-icon-select data-planting-picker="${escapeHtml(entry.item)}" aria-label="${escapeHtml(t("aria.plantingOf", { item: entry.item }))}" class="${isManualPlanting(entry.item) ? "manual" : ""}">${flowPlantingOptions(entry.item)}</select>` : ""}
+          ${entry.fertilizerItem ? `<select data-icon-select data-fertilizer-picker="${escapeHtml(entry.item)}" aria-label="${escapeHtml(t("aria.fertilizerOf", { item: entry.item }))}" class="${isManualFertilizer(entry.item) ? "manual" : ""}">${flowFertilizerOptions(entry.item)}</select>` : `<span class="fuel-note">sem fertilizante</span>`}
         </div>
       </div>`;
   };
   return `
     <div class="factory-fuel">
-      <div class="io-title">Plantio e fertilizante</div>
+      <div class="io-title">${t("section.plantFert")}</div>
       <div class="node-row">
-        <label>🪴 Plantio</label>
-        <select data-icon-select data-default-planting aria-label="Forma de plantar padrão da fábrica">
+        <label>🪴 ${t("label.planting")}</label>
+        <select data-icon-select data-default-planting aria-label="${escapeHtml(t("aria.defaultPlanting"))}">
           ${plantingMachines().map((machine) => `<option value="${escapeHtml(machine.id)}"${flowIconAttr(machine.icon)} ${machine.id === defaultPlantingId() ? "selected" : ""}>${escapeHtml(machine.name)}</option>`).join("")}
         </select>
       </div>
       <div class="node-row">
-        <label>🌱 Fertil.</label>
-        <select data-icon-select data-default-fertilizer aria-label="Fertilizante padrão da fábrica">
+        <label>🌱 ${t("label.fertilizer")}</label>
+        <select data-icon-select data-default-fertilizer aria-label="${escapeHtml(t("aria.defaultFertilizer"))}">
           ${fertilizerItems().map((fertilizer) => `<option value="${escapeHtml(fertilizer)}"${flowIconAttr(itemIcon(fertilizer))} ${fertilizer === defaultFertilizerItem() ? "selected" : ""}>${escapeHtml(fertilizer)}</option>`).join("")}
         </select>
       </div>
-      ${nurseries.length ? "" : `<p class="fuel-note">Nenhuma erva neste plano.</p>`}
-      ${used.size ? `<div class="fuel-group">Fertilizantes em uso</div>${[...used.entries()].map(([fertilizer, rate]) => `
+      ${nurseries.length ? "" : `<p class="fuel-note">${t("fert.noHerbs")}</p>`}
+      ${used.size ? `<div class="fuel-group">${t("fert.inUse")}</div>${[...used.entries()].map(([fertilizer, rate]) => `
         <div class="fuel-use">
           ${flowIcon(itemIcon(fertilizer))}
           <span>${escapeHtml(fertilizer)} <em>${formatRate(rate)} · ${flowFuelOrigin(plan, fertilizer)}</em></span>
-          ${canProduceSupply(fertilizer) ? flowSupplyLineButton(fertilizer) : `<em class="not-craftable">não fabricável</em>`}
+          ${canProduceSupply(fertilizer) ? flowSupplyLineButton(fertilizer) : `<em class="not-craftable">${t("fuel.notCraftable")}</em>`}
         </div>`).join("")}` : ""}
-      ${nurseries.length ? `<div class="fuel-group">Ervas (${nurseries.length})</div>${nurseries.map(row).join("")}` : ""}
+      ${nurseries.length ? `<div class="fuel-group">${t("fert.herbs", { n: nurseries.length })}</div>${nurseries.map(row).join("")}` : ""}
     </div>`;
 }
 
@@ -592,7 +592,7 @@ function flowFurnaceOptions(item) {
   const manual = isManualFurnace(item);
   const current = selectedFurnaceFor(item);
   return `
-    <option value=""${flowIconAttr(machineById(defaultFurnaceId())?.icon)} ${manual ? "" : "selected"}>Padrão (${escapeHtml(machineById(defaultFurnaceId())?.name || "")})</option>
+    <option value=""${flowIconAttr(machineById(defaultFurnaceId())?.icon)} ${manual ? "" : "selected"}>${escapeHtml(t("option.default", { name: machineById(defaultFurnaceId())?.name || "" }))}</option>
     ${furnaces().map((furnace) => `<option value="${escapeHtml(furnace.id)}"${flowIconAttr(furnace.icon)} ${manual && furnace.id === current ? "selected" : ""}>${escapeHtml(furnace.name)}</option>`).join("")}`;
 }
 
@@ -601,7 +601,7 @@ function flowFurnaceSelect(entry) {
   const manual = isManualFurnace(entry.item);
   return `
     <div class="node-row ${manual ? "fuel-manual" : ""}">
-      <label title="${manual ? "Escolhida manualmente" : "Segue o padrão da fábrica"}">🧱 ${manual ? "Manual" : "Fornalha"}</label>
+      <label title="${manual ? t("choice.manualFem") : t("choice.follows")}">🧱 ${manual ? t("label.manual") : t("label.furnace")}</label>
       <select data-icon-select data-furnace-picker="${escapeHtml(entry.item)}">${flowFurnaceOptions(entry.item)}</select>
     </div>`;
 }
@@ -611,9 +611,9 @@ function flowFurnaceLine(entry) {
   if (!entry.furnaceId) return "";
   const furnace = machineById(entry.furnaceId);
   return `
-    <div class="furnace-line" title="Cada máquina fica sobre uma ${escapeHtml(furnace?.name || "")}">
+    <div class="furnace-line" title="${escapeHtml(t("furnace.title", { name: furnace?.name || "" }))}">
       ${flowIcon(furnace?.icon)}
-      <span>sobre <b>${entry.furnaceCount}×</b> ${escapeHtml(furnace?.name || "")}</span>
+      <span>${t("furnace.on")} <b>${entry.furnaceCount}×</b> ${escapeHtml(furnace?.name || "")}</span>
       <span class="heat">🔥 ${round(entry.heat)}/s</span>
     </div>`;
 }
@@ -636,39 +636,39 @@ function flowFactoryFuelHtml(plan) {
           <em>${entry.furnaceCount}× · ${formatRate(fuelRateFor(entry.heat, entry.fuelItem))}</em>
         </div>
         <div class="fuel-row-selects">
-          <select data-icon-select data-furnace-picker="${escapeHtml(entry.item)}" aria-label="Fornalha de ${escapeHtml(entry.item)}" class="${isManualFurnace(entry.item) ? "manual" : ""}">${flowFurnaceOptions(entry.item)}</select>
-          <select data-icon-select data-fuel-picker="${escapeHtml(entry.item)}" aria-label="Combustível de ${escapeHtml(entry.item)}" class="${isManualFuel(entry.item) ? "manual" : ""}">${flowFuelOptions(entry.item)}</select>
+          <select data-icon-select data-furnace-picker="${escapeHtml(entry.item)}" aria-label="${escapeHtml(t("aria.furnaceOf", { item: entry.item }))}" class="${isManualFurnace(entry.item) ? "manual" : ""}">${flowFurnaceOptions(entry.item)}</select>
+          <select data-icon-select data-fuel-picker="${escapeHtml(entry.item)}" aria-label="${escapeHtml(t("aria.fuelOf", { item: entry.item }))}" class="${isManualFuel(entry.item) ? "manual" : ""}">${flowFuelOptions(entry.item)}</select>
         </div>
       </div>`;
   };
   return `
     <div class="factory-fuel">
-      <div class="io-title">Aquecimento</div>
+      <div class="io-title">${t("section.heating")}</div>
       <div class="node-row">
-        <label>🧱 Fornalha</label>
-        <select data-icon-select data-default-furnace aria-label="Fornalha padrão da fábrica">
+        <label>🧱 ${t("label.furnace")}</label>
+        <select data-icon-select data-default-furnace aria-label="${escapeHtml(t("aria.defaultFurnace"))}">
           ${furnaces().map((furnace) => `<option value="${escapeHtml(furnace.id)}"${flowIconAttr(furnace.icon)} ${furnace.id === defaultFurnaceId() ? "selected" : ""}>${escapeHtml(furnace.name)}</option>`).join("")}
         </select>
       </div>
       <div class="node-row">
-        <label>🔥 Comb.</label>
-        <select data-icon-select data-default-fuel aria-label="Combustível padrão da fábrica">
+        <label>🔥 ${t("label.fuel")}</label>
+        <select data-icon-select data-default-fuel aria-label="${escapeHtml(t("aria.defaultFuel"))}">
           ${fuelItems().map((fuel) => `<option value="${escapeHtml(fuel)}"${flowIconAttr(itemIcon(fuel))} ${fuel === defaultFuelItem() ? "selected" : ""}>${escapeHtml(fuel)}</option>`).join("")}
         </select>
       </div>
       ${heated.length
-        ? `<p class="fuel-note">${furnaceTotal} fornalha${furnaceTotal === 1 ? "" : "s"} · calor total ${round(heatTotal)}/s</p>`
-        : `<p class="fuel-note">Nenhuma máquina deste plano precisa de aquecimento.</p>`}
+        ? `<p class="fuel-note">${t("heat.total", { n: furnaceTotal, heat: round(heatTotal) })}</p>`
+        : `<p class="fuel-note">${t("heat.none")}</p>`}
       ${flowFactoryFuelsHtml(plan)}
-      ${manual.length ? `<div class="fuel-group">Manuais (${manual.length})</div>${manual.map(row).join("")}` : ""}
-      ${byDefault.length ? `<div class="fuel-group">No padrão (${byDefault.length})</div>${byDefault.map(row).join("")}` : ""}
+      ${manual.length ? `<div class="fuel-group">${t("heat.manual", { n: manual.length })}</div>${manual.map(row).join("")}` : ""}
+      ${byDefault.length ? `<div class="fuel-group">${t("heat.default", { n: byDefault.length })}</div>${byDefault.map(row).join("")}` : ""}
     </div>`;
 }
 
 function flowFuelOrigin(plan, fuel) {
-  if (plan.loopWarnings?.includes(fuel)) return `<b class="loop-warning">⚠ ciclo não se sustenta · o consumo do ciclo vem de fora</b>`;
-  if (!isSupplyProduced(fuel)) return "vem de fora";
-  return plan.loops?.[fuel] ? `produzido aqui · ${formatRate(plan.loops[fuel])} realimentam a própria linha` : "produzido aqui";
+  if (plan.loopWarnings?.includes(fuel)) return `<b class="loop-warning">${t("origin.loopWarning")}</b>`;
+  if (!isSupplyProduced(fuel)) return t("origin.fromOutside");
+  return plan.loops?.[fuel] ? t("origin.producedLoop", { rate: formatRate(plan.loops[fuel]) }) : t("origin.produced");
 }
 
 // Cada combustível em uso: quanto a fábrica queima e se vem de fora ou de uma linha própria.
@@ -677,12 +677,12 @@ function flowFactoryFuelsHtml(plan) {
   plan.edges.filter((edge) => edge.fuel).forEach((edge) => used.set(edge.from, (used.get(edge.from) || 0) + edge.rate));
   if (!used.size) return "";
   return `
-    <div class="fuel-group">Combustíveis em uso</div>
+    <div class="fuel-group">${t("fuel.inUse")}</div>
     ${[...used.entries()].map(([fuel, rate]) => `
       <div class="fuel-use">
         ${flowIcon(itemIcon(fuel))}
         <span>${escapeHtml(fuel)} <em>${formatRate(rate)} · ${flowFuelOrigin(plan, fuel)}</em></span>
-        ${canProduceSupply(fuel) ? flowSupplyLineButton(fuel) : `<em class="not-craftable">não fabricável</em>`}
+        ${canProduceSupply(fuel) ? flowSupplyLineButton(fuel) : `<em class="not-craftable">${t("fuel.notCraftable")}</em>`}
       </div>`).join("")}`;
 }
 
@@ -699,11 +699,11 @@ function flowInternalSuppliesHtml(plan) {
     });
   if (!internal.size) return "";
   return `
-    <div class="io-title internal">Produzidos aqui</div>
+    <div class="io-title internal">${t("internal.title")}</div>
     ${[...internal.entries()].sort((a, b) => b[1].rate - a[1].rate).map(([item, { rate, kind }]) => `
-      <div class="io-row in internal" title="${escapeHtml(item)} é produzido por uma linha da própria fábrica">
+      <div class="io-row in internal" title="${escapeHtml(t("internal.itemTitle", { item }))}">
         ${flowIcon(itemIcon(item))}
-        <span class="io-name">${escapeHtml(item)} <em>${kind === "fuel" ? "🔥 combustível" : "🌱 fertilizante"}</em></span>
+        <span class="io-name">${escapeHtml(item)} <em>${kind === "fuel" ? t("kind.fuel") : t("kind.fertilizer")}</em></span>
         <span class="io-rate">${formatRate(rate)}</span>
       </div>`).join("")}`;
 }
@@ -735,11 +735,11 @@ function flowUnitHtml(node, attrs) {
 
 function flowBeltHtml(node, attrs) {
   return `
-    <div class="flow-node belt ${attrs.classes}" data-id="${escapeHtml(node.id)}" style="${attrs.style}" title="Esteira ${node.index} de ${node.total}: ${formatRate(node.rate)} (capacidade ${formatRate(state.settings.beltRate)})">
+    <div class="flow-node belt ${attrs.classes}" data-id="${escapeHtml(node.id)}" style="${attrs.style}" title="${escapeHtml(t("belt.title", { i: node.index, n: node.total, rate: formatRate(node.rate), cap: formatRate(state.settings.beltRate) }))}">
       <span class="port in" data-port="${escapeHtml(flowPortKey(node.item, 0))}"></span>
       <span class="port out" data-port="${escapeHtml(flowPortKey(node.item, 0))}"></span>
       ${flowIcon(itemIcon(node.item))}
-      <span class="belt-name">Esteira ${node.index}/${node.total}</span>
+      <span class="belt-name">${t("belt.name", { i: node.index, n: node.total })}</span>
       <span class="belt-rate">${formatRate(node.rate)}</span>
       <i class="belt-fill" style="width:${Math.min(100, (node.rate / state.settings.beltRate) * 100)}%"></i>
     </div>`;
@@ -754,25 +754,25 @@ function flowFactoryHtml(node, attrs) {
   });
   const types = [...byMachine.entries()].sort((a, b) => b[1] - a[1]);
   return `
-    <div class="flow-node factory ${attrs.classes}" data-id="factory" style="${attrs.style}" title="Abrir a linha (nível 2)">
+    <div class="flow-node factory ${attrs.classes}" data-id="factory" style="${attrs.style}" title="${escapeHtml(t("factory.openTitle"))}">
       <div class="node-head">
         <span class="node-icon machine factory-mark" aria-hidden="true"><img src="static/brand/emblem.png" alt="" /></span>
         <div class="node-title">
-          <strong>${escapeHtml(state.settings.factoryName || "Fábrica")}</strong>
-          <span>${round(node.total)} máquinas · ${types.length} tipo${types.length === 1 ? "" : "s"}</span>
+          <strong>${escapeHtml(state.settings.factoryName || t("factory.name"))}</strong>
+          <span>${t("factory.summary", { n: round(node.total), types: types.length })}</span>
         </div>
       </div>
       <div class="factory-grid">
         <div class="io factory-in">
-          <div class="io-title">Entradas</div>
-          ${Object.entries(plan.raw).sort((a, b) => b[1] - a[1]).map(([item, rate]) => flowIoRow("in", item, rate)).join("") || `<p class="fuel-note">Nada vem de fora.</p>`}
+          <div class="io-title">${t("factory.inputs")}</div>
+          ${Object.entries(plan.raw).sort((a, b) => b[1] - a[1]).map(([item, rate]) => flowIoRow("in", item, rate)).join("") || `<p class="fuel-note">${t("factory.nothingOutside")}</p>`}
           ${flowInternalSuppliesHtml(plan)}
         </div>
         <div class="io factory-out">
-          <div class="io-title out">Saídas</div>
+          <div class="io-title out">${t("factory.outputs")}</div>
           ${plan.targetOutputs.map((output) => flowIoRow("out", output.item, output.rate)).join("")}
           ${state.settings.showByproducts ? Object.entries(plan.waste).map(([item, rate]) => flowIoRow("out", item, rate, { extra: "waste" })).join("") : ""}
-          <div class="io-title out">Máquinas</div>
+          <div class="io-title out">${t("factory.machines")}</div>
           <div class="machine-types">
             ${types.map(([id, count]) => {
               const machine = machineById(id);
@@ -785,7 +785,7 @@ function flowFactoryHtml(node, attrs) {
         ${flowFactoryFuelHtml(plan)}
         ${flowFactoryFertilizerHtml(plan)}
       </div>
-      <div class="factory-open">Abrir linha →</div>
+      <div class="factory-open">${t("factory.open")}</div>
     </div>`;
 }
 
@@ -797,12 +797,12 @@ function flowGoalHtml(node, attrs) {
         <span class="node-icon">${flowIcon(itemIcon(node.item))}</span>
         <div class="node-title">
           <strong>${escapeHtml(node.item)}</strong>
-          <span>saída</span>
+          <span>${t("goal.output")}</span>
         </div>
-        <button type="button" class="goal-remove" data-remove-output="${escapeHtml(node.outputId)}" title="Remover saída" aria-label="Remover ${escapeHtml(node.item)}">✕</button>
+        <button type="button" class="goal-remove" data-remove-output="${escapeHtml(node.outputId)}" title="${escapeHtml(t("goal.removeTitle"))}" aria-label="${escapeHtml(t("goal.removeAria", { item: node.item }))}">✕</button>
       </div>
       <label class="goal-rate">
-        <input type="number" min="0.1" step="0.1" value="${escapeHtml(node.rate)}" data-flow-rate="${escapeHtml(node.outputId)}" aria-label="Meta por minuto de ${escapeHtml(node.item)}" />
+        <input type="number" min="0.1" step="0.1" value="${escapeHtml(node.rate)}" data-flow-rate="${escapeHtml(node.outputId)}" aria-label="${escapeHtml(t("goal.rateAria", { item: node.item }))}" />
         <span>/min</span>
       </label>
     </div>`;
@@ -812,8 +812,8 @@ function flowAddHtml(attrs) {
   const chosen = new Set(state.settings.targetOutputs.map((output) => output.item));
   return `
     <div class="flow-node add-output ${attrs.classes}" data-id="add" style="${attrs.style}">
-      <strong>+ Adicionar saída</strong>
-      <input type="search" placeholder="Buscar item…" data-flow-search aria-label="Buscar item para adicionar" />
+      <strong>${t("add.title")}</strong>
+      <input type="search" placeholder="${escapeHtml(t("add.search"))}" data-flow-search aria-label="${escapeHtml(t("add.searchAria"))}" />
       <div class="add-list">
         ${outputItems().map((item) => `
           <button type="button" data-flow-add="${escapeHtml(item)}" class="${chosen.has(item) ? "chosen" : ""}">
@@ -844,7 +844,7 @@ function flowNodeHtml(node, hidden) {
         ${flowIcon(itemIcon(node.item), "item-icon")}
         <strong>${escapeHtml(node.item)}</strong>
         <span class="rate">${formatRate(node.rate)}</span>
-        <span class="item-meta">${node.type === "waste" ? "sobra · sem destino" : `${belts} esteira${belts === 1 ? "" : "s"}`}</span>
+        <span class="item-meta">${node.type === "waste" ? t("item.waste") : t("item.belts", { n: belts })}</span>
       </div>`;
   }
 
@@ -858,7 +858,7 @@ function flowNodeHtml(node, hidden) {
           <span class="node-icon">${flowIcon(itemIcon(node.item))}</span>
           <div class="node-title">
             <strong>${escapeHtml(node.item)}</strong>
-            <span><span class="rate">${formatRate(node.rate)}</span> ${escapeHtml(node.label || (node.type === "raw" ? (fuelItems().includes(node.item) ? "entrada · combustível" : "entrada") : "saída"))}</span>
+            <span><span class="rate">${formatRate(node.rate)}</span> ${escapeHtml(node.label || (node.type === "raw" ? (fuelItems().includes(node.item) ? t("raw.fuelInput") : t("raw.input")) : t("goal.output")))}</span>
           </div>
         </div>
         ${burnedHere ? flowSupplyLineButton(node.item) : ""}
@@ -875,12 +875,12 @@ function flowNodeHtml(node, hidden) {
   const wastes = flowOutgoing(node.id).filter((edge) => edge.waste);
   const toolbar = `
       <div class="node-toolbar">
-        ${canCollapse ? `<button type="button" data-flow-act="collapse">${flowUi.collapsed.has(node.id) ? "⊞ Expandir" : "⊟ Recolher"}</button>` : ""}
-        <button type="button" data-flow-act="details" title="Detalhes">ⓘ</button>
+        ${canCollapse ? `<button type="button" data-flow-act="collapse">${flowUi.collapsed.has(node.id) ? t("node.expand") : t("node.collapse")}</button>` : ""}
+        <button type="button" data-flow-act="details" title="${escapeHtml(t("node.details"))}">ⓘ</button>
       </div>`;
   const collapsedChip = hiddenMachines.length ? `
-        <span class="chip collapsed" data-flow-act="collapse" title="Expandir">
-          ▸ ${hiddenMachines.length} máquina${hiddenMachines.length === 1 ? "" : "s"} oculta${hiddenMachines.length === 1 ? "" : "s"}
+        <span class="chip collapsed" data-flow-act="collapse" title="${escapeHtml(t("node.expandTitle"))}">
+          ${t("node.hidden", { n: hiddenMachines.length })}
           ${hiddenRaw.map((item) => flowIcon(itemIcon(item))).join("")}
         </span>` : "";
 
@@ -893,7 +893,7 @@ function flowNodeHtml(node, hidden) {
           <strong>${escapeHtml(machine?.name || entry.machine)}</strong>
           <span class="node-product">${flowIcon(itemIcon(entry.item))}${escapeHtml(entry.recipe)}</span>
         </div>
-        <span class="count-badge" title="${round(entry.machineCount)} máquinas (${Math.ceil(entry.machineCount)} inteiras)">×${round(entry.machineCount)}</span>
+        <span class="count-badge" title="${escapeHtml(t("node.countTitle", { n: round(entry.machineCount), whole: Math.ceil(entry.machineCount) }))}">×${round(entry.machineCount)}</span>
       </div>
       <div class="load-line">
         <div class="load"><span style="width:${Math.min(100, entry.load * 100)}%"></span></div>
@@ -902,9 +902,9 @@ function flowNodeHtml(node, hidden) {
       ${flowFurnaceLine(entry)}
       ${flowNurseryLine(entry)}
       <div class="io">
-        ${inputs.length ? `<div class="io-title">Entradas</div>` : ""}
+        ${inputs.length ? `<div class="io-title">${t("factory.inputs")}</div>` : ""}
         ${inputs.map((edge) => flowIoRow("in", edge.item, edge.rate, { kind: flowKind(edge), extra: hidden.has(edge.from) ? "hidden-src" : "" })).join("")}
-        <div class="io-title out">Saídas</div>
+        <div class="io-title out">${t("factory.outputs")}</div>
         ${flowIoRow("out", entry.item, entry.demand)}
         ${wastes.map((edge) => flowIoRow("out", edge.item, edge.rate, { extra: "waste" })).join("")}
       </div>
@@ -982,13 +982,13 @@ function flowDrawGroups(box, hot) {
     const collapsed = flowUi.collapsed.has(lane.root);
     const dim = hot && !members.some((node) => hot.has(node.id)) ? "dim" : "";
     return `
-      <div class="flow-group ${dim} ${flowIsLocked(lane.id) ? "locked" : ""}" data-lane="${escapeHtml(lane.id)}" title="${flowIsLocked(lane.id) ? "Clique para dar zoom · abra o cadeado para mover" : "Arraste para mover o bloco · clique para dar zoom"}" style="--lane:${lane.color};left:${x}px;top:${y}px;width:${right - x}px;height:${bottom - y}px">
+      <div class="flow-group ${dim} ${flowIsLocked(lane.id) ? "locked" : ""}" data-lane="${escapeHtml(lane.id)}" title="${escapeHtml(flowIsLocked(lane.id) ? t("group.lockedTitle") : t("group.unlockedTitle"))}" style="--lane:${lane.color};left:${x}px;top:${y}px;width:${right - x}px;height:${bottom - y}px">
         <div class="group-head">
           <strong>${flowUi.buildOrder ? `${flowUi.buildOrder.order.indexOf(lane.id) + 1}. ` : ""}${escapeHtml(flowLaneLabel(lane))}</strong>
-          <span>${machines.length} receita${machines.length === 1 ? "" : "s"} · ${round(machineCount)} máquinas</span>
-          <button type="button" class="group-detail" data-flow-detail="${escapeHtml(lane.id)}" title="Ver cada máquina e cada esteira deste bloco">⤢ Linha completa</button>
-          <button type="button" class="group-lock" data-flow-lock="${escapeHtml(lane.id)}" aria-pressed="${flowIsLocked(lane.id)}" title="${flowIsLocked(lane.id) ? "Posição bloqueada — clique para liberar" : "Posição livre — clique para bloquear"}">${flowIsLocked(lane.id) ? "🔒" : "🔓"}</button>
-          ${lane.root ? `<button type="button" data-flow-group="${escapeHtml(lane.root)}">${collapsed ? "⊞ Expandir" : "⊟ Recolher"}</button>` : ""}
+          <span>${t("group.summary", { recipes: machines.length, machines: round(machineCount) })}</span>
+          <button type="button" class="group-detail" data-flow-detail="${escapeHtml(lane.id)}" title="${escapeHtml(t("group.fullLineTitle"))}">${t("group.fullLine")}</button>
+          <button type="button" class="group-lock" data-flow-lock="${escapeHtml(lane.id)}" aria-pressed="${flowIsLocked(lane.id)}" title="${escapeHtml(flowIsLocked(lane.id) ? t("group.lockedLock") : t("group.unlockedLock"))}">${flowIsLocked(lane.id) ? "🔒" : "🔓"}</button>
+          ${lane.root ? `<button type="button" data-flow-group="${escapeHtml(lane.root)}">${collapsed ? t("node.expand") : t("node.collapse")}</button>` : ""}
         </div>
       </div>`;
   }).join("");
@@ -1009,25 +1009,25 @@ function flowRenderDetails() {
   flowEls.details.innerHTML = `
     <header>
       ${flowIcon(machine?.icon)}
-      <div><h2>${escapeHtml(machine?.name || entry.machine)}</h2><p>produz ${escapeHtml(entry.item)} · ${escapeHtml(lane?.name || "")}</p></div>
-      <button type="button" class="close" data-flow-act="close" aria-label="Fechar">✕</button>
+      <div><h2>${escapeHtml(machine?.name || entry.machine)}</h2><p>${escapeHtml(t("details.produces", { item: entry.item, lane: lane?.name || "" }))}</p></div>
+      <button type="button" class="close" data-flow-act="close" aria-label="${escapeHtml(t("details.close"))}">✕</button>
     </header>
-    <h3>Produção</h3>
+    <h3>${t("details.production")}</h3>
     <div class="stat-grid">
-      <div class="stat"><strong>${formatRate(entry.demand)}</strong><span>demanda</span></div>
-      <div class="stat"><strong>×${round(entry.machineCount)}</strong><span>máquinas (${Math.ceil(entry.machineCount)} inteiras)</span></div>
-      <div class="stat"><strong>${round(entry.load * 100)}%</strong><span>carga</span></div>
-      <div class="stat"><strong>${round(recipe?.seconds || 0)}s</strong><span>ciclo</span></div>
+      <div class="stat"><strong>${formatRate(entry.demand)}</strong><span>${t("details.demand")}</span></div>
+      <div class="stat"><strong>×${round(entry.machineCount)}</strong><span>${t("details.machines", { n: Math.ceil(entry.machineCount) })}</span></div>
+      <div class="stat"><strong>${round(entry.load * 100)}%</strong><span>${t("details.load")}</span></div>
+      <div class="stat"><strong>${round(recipe?.seconds || 0)}s</strong><span>${t("details.cycle")}</span></div>
     </div>
-    ${recipesFor(entry.item).length > 1 ? `<h3>Receita</h3>${flowRecipeSelect(entry.item)}` : ""}
-    ${entry.fuelItem ? `<h3>Aquecimento</h3>${flowFurnaceLine(entry)}${flowFurnaceSelect(entry)}${flowFuelSelect(entry)}` : ""}
-    ${entry.planting || entry.fertilizerItem ? `<h3>Plantio</h3>${flowNurseryLine(entry)}${flowPlantingSelect(entry)}${flowFertilizerSelect(entry)}` : ""}
-    <h3>Entradas</h3>
-    <div class="io-list">${flowIncoming(node.id).map((edge) => ioLine(edge.item, edge.rate, edge.fuel ? " 🔥" : edge.fertilizer ? " 🌱" : "")).join("") || `<p class="note">Nenhuma.</p>`}</div>
-    <h3>Saídas</h3>
+    ${recipesFor(entry.item).length > 1 ? `<h3>${t("details.recipe")}</h3>${flowRecipeSelect(entry.item)}` : ""}
+    ${entry.fuelItem ? `<h3>${t("details.heating")}</h3>${flowFurnaceLine(entry)}${flowFurnaceSelect(entry)}${flowFuelSelect(entry)}` : ""}
+    ${entry.planting || entry.fertilizerItem ? `<h3>${t("details.planting")}</h3>${flowNurseryLine(entry)}${flowPlantingSelect(entry)}${flowFertilizerSelect(entry)}` : ""}
+    <h3>${t("details.inputs")}</h3>
+    <div class="io-list">${flowIncoming(node.id).map((edge) => ioLine(edge.item, edge.rate, edge.fuel ? " 🔥" : edge.fertilizer ? " 🌱" : "")).join("") || `<p class="note">${t("details.none")}</p>`}</div>
+    <h3>${t("details.outputs")}</h3>
     <div class="io-list">
       ${ioLine(entry.item, entry.demand)}
-      ${wastes.map((edge) => ioLine(edge.item, edge.rate, " (sobra)")).join("")}
+      ${wastes.map((edge) => ioLine(edge.item, edge.rate, t("details.waste"))).join("")}
     </div>`;
   flowEls.details.classList.add("open");
 }
@@ -1216,7 +1216,7 @@ function flowAlignItemNodes() {
 function flowApplyView() {
   flowEls.world.style.transform = `translate(${flowUi.x}px, ${flowUi.y}px) scale(${flowUi.scale})`;
   const zoom = document.querySelector("#statusZoom");
-  if (zoom) zoom.textContent = `zoom ${Math.round(flowUi.scale * 100)}%`;
+  if (zoom) zoom.textContent = t("status.zoom", { n: Math.round(flowUi.scale * 100) });
 }
 
 function flowFit() {
@@ -1336,8 +1336,8 @@ function flowCloseDetail(laneId) {
 function flowRenderTabs(level) {
   const tabs = flowUi.detailTabs.map((tab) => `
     <div class="detail-tab ${level === 3 && tab.lane === flowUi.detailLane ? "active" : ""}">
-      <button type="button" data-flow-detail-tab="${escapeHtml(tab.lane)}" title="Linha ${escapeHtml(tab.name)}">▦ Linha ${escapeHtml(tab.name)}</button>
-      <button type="button" class="detail-close" data-flow-detail-close="${escapeHtml(tab.lane)}" title="Fechar" aria-label="Fechar ${escapeHtml(tab.name)}">✕</button>
+      <button type="button" data-flow-detail-tab="${escapeHtml(tab.lane)}" title="${escapeHtml(t("tab.line", { name: tab.name }))}">▦ ${escapeHtml(t("tab.line", { name: tab.name }))}</button>
+      <button type="button" class="detail-close" data-flow-detail-close="${escapeHtml(tab.lane)}" title="${escapeHtml(t("tab.close"))}" aria-label="${escapeHtml(t("tab.closeAria", { name: tab.name }))}">✕</button>
     </div>`).join("");
   document.querySelector("[data-detail-tabs]").innerHTML = tabs;
 }
@@ -1366,7 +1366,7 @@ function drawFlow(plan) {
   const gone = flowUi.detailTabs.filter((tab) => !base?.lanes.some((lane) => lane.id === tab.lane));
   if (gone.length) {
     flowUi.detailTabs = flowUi.detailTabs.filter((tab) => !gone.includes(tab));
-    flowToast(`Bloco fechado: ${gone.map((tab) => tab.name).join(", ")} não existe mais nesta fábrica.`);
+    flowToast(t("toast.blocksGone", { names: gone.map((tab) => tab.name).join(", ") }));
     if (gone.some((tab) => tab.lane === flowUi.detailLane)) {
       flowUi.detailLane = flowUi.detailTabs[0]?.lane || "";
       if (!flowUi.detailLane && level === 3) {
@@ -1449,7 +1449,7 @@ function drawFlow(plan) {
 
   if (!plan.targetOutputs.length) {
     flowUi.buildOrder = null;
-    flowEls.nodes.innerHTML = `<div class="flow-empty">Adicione uma saída no nível 1 · Geral para gerar a fábrica.</div>`;
+    flowEls.nodes.innerHTML = `<div class="flow-empty">${t("flow.empty")}</div>`;
     flowEls.edges.innerHTML = "";
     flowEls.groups.innerHTML = "";
     flowEls.details.classList.remove("open");
@@ -1470,7 +1470,7 @@ function drawFlow(plan) {
     const parts = [];
     if (added.length) parts.push(`+${added.length} (${names(added)})`);
     if (removed.length) parts.push(`−${removed.length} (${names(removed)})`);
-    flowToast(`Fábrica mudou: ${parts.join(" · ")} · máquinas ${round(previousTotal)} → ${round(total)}`);
+    flowToast(t("toast.changed", { parts: parts.join(" · "), before: round(previousTotal), after: round(total) }));
   }
 }
 
@@ -1498,7 +1498,7 @@ function flowBuildOrder(graph) {
 }
 
 function flowLaneLabel(lane) {
-  return `${{ final: "Final", fuel: "Combustível", fertilizer: "Fertilizante" }[lane.kind] || "Subcadeia"} · ${lane.name}`;
+  return `${t(`lane.kind.${{ final: "final", fuel: "fuel", fertilizer: "fertilizer" }[lane.kind] || "chain"}`)} · ${lane.kind === "final" ? t("lane.final") : lane.name}`;
 }
 
 function flowRenderLegend() {
@@ -1521,14 +1521,14 @@ function flowRenderLegend() {
       <li style="--lane:${lane.color}" class="${flowUi.level === 3 && flowUi.detailLane === laneId ? "current" : ""}">
         <div class="legend-row">
           <b>${index + 1}</b>
-          <button type="button" class="legend-text" data-legend-detail="${escapeHtml(laneId)}" title="Abrir esta linha em uma aba">
-            <strong>${escapeHtml(flowLaneLabel(lane))}${open ? ` <span class="legend-open" title="Aberta em uma aba">●</span>` : ""}</strong>
-            <em>${machines.length} receita${machines.length === 1 ? "" : "s"} · ${round(count)} máquina${count === 1 ? "" : "s"}${uses.length ? ` · usa ${uses.join(", ")}` : ""}</em>
+          <button type="button" class="legend-text" data-legend-detail="${escapeHtml(laneId)}" title="${escapeHtml(t("legend.openTitle"))}">
+            <strong>${escapeHtml(flowLaneLabel(lane))}${open ? ` <span class="legend-open" title="${escapeHtml(t("legend.openMark"))}">●</span>` : ""}</strong>
+            <em>${t("legend.summary", { recipes: machines.length, machines: round(count) })}${uses.length ? ` · ${t("legend.uses", { list: uses.join(", ") })}` : ""}</em>
           </button>
         </div>
         <div class="legend-actions">
-          <button type="button" data-legend-zoom="${escapeHtml(laneId)}" title="Dar zoom neste bloco na aba Linha">🔍 Zoom</button>
-          <button type="button" data-legend-detail="${escapeHtml(laneId)}" title="Ver cada máquina e cada esteira deste bloco">⤢ Linha completa</button>
+          <button type="button" data-legend-zoom="${escapeHtml(laneId)}" title="${escapeHtml(t("legend.zoomTitle"))}">${t("legend.zoom")}</button>
+          <button type="button" data-legend-detail="${escapeHtml(laneId)}" title="${escapeHtml(t("group.fullLineTitle"))}">${t("group.fullLine")}</button>
         </div>
       </li>`;
   }).join("");
@@ -1776,7 +1776,7 @@ document.addEventListener("click", (event) => {
   const item = event.target.closest("[data-flow-add]")?.dataset.flowAdd;
   if (item) {
     if (state.settings.targetOutputs.some((output) => output.item === item)) {
-      flowToast(`${item} já está nas saídas — ajuste a meta no nó.`);
+      flowToast(t("toast.alreadyOutput", { item }));
       return;
     }
     state.settings.targetOutputs.push({ id: outputId(), item, rate: state.settings.targetRate });

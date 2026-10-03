@@ -617,7 +617,7 @@ tr:last-child td {
 }
 
 
-/* ---------- workbench no estilo do VS Code: o diagrama ocupa o lugar do editor ---------- */
+/* ---------- workbench: o diagrama ocupa a área central ---------- */
 body {
   overflow: hidden;
   background: var(--bg);
@@ -741,9 +741,14 @@ body {
 }
 
 .activity {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 48px;
   min-height: 46px;
   padding: 0;
+  color: inherit;
+  text-decoration: none;
   border: 0;
   border-left: 2px solid transparent;
   border-radius: 0;
@@ -1302,4 +1307,27 @@ input[type="range"],
 .saved-open {
   justify-content: start;
   align-content: start;
+}
+
+/* seletor de idioma na barra de título */
+.language-select {
+  width: auto;
+  min-height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.language-select:hover,
+.language-select:focus {
+  border-color: var(--gold);
+  outline: none;
+}
+
+.titlebar-brand {
+  text-decoration: none;
 }

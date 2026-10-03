@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tutorial · Alchemy Factory Planner</title>
+    <link rel="icon" type="image/png" href="static/brand/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="tutorial.css?v=20261003-0430" />
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand" href="index.html">
+        <img src="static/brand/emblem.png" alt="" />
+        <span>Alchemy Factory <b>Planner</b></span>
+      </a>
+      <span class="top-title">Tutorial</span>
+      <nav class="lang-links" aria-label="Language">
+        <a href="tutorial.html" hreflang="pt-BR">PT</a>
+        <a href="tutorial.en.html" class="active" hreflang="en">EN</a>
+        <a href="tutorial.es.html" hreflang="es">ES</a>
+      </nav>
+      <a class="open-app" href="planner.html?lang=en">Open the planner →</a>
+    </header>
+
+    <div class="layout">
+      <nav class="toc" aria-label="Contents">
+        <p class="toc-title">In this tutorial</p>
+        <ol>
+          <li><a href="#inicio">Quick start</a></li>
+          <li><a href="#tela">The screen</a></li>
+          <li><a href="#geral">Create the factory (Overview)</a></li>
+          <li><a href="#aquecimento">Furnaces and fuel</a></li>
+          <li><a href="#plantio">Planting and fertilizer</a></li>
+          <li><a href="#linha">The Lines tab</a></li>
+          <li><a href="#detalhes">Machine details</a></li>
+          <li><a href="#bloco">Full line: machines and belts</a></li>
+          <li><a href="#tabelas">Tables and settings</a></li>
+          <li><a href="#salvar">Save and share</a></li>
+          <li><a href="#calculo">How the math works</a></li>
+          <li><a href="#dicas">Tips</a></li>
+        </ol>
+      </nav>
+
+      <main class="content">
+        <section class="hero">
+          <img src="static/brand/emblem.png" alt="" />
+          <div>
+            <h1>How to use Alchemy Factory Planner</h1>
+            <p>The planner works out how many machines, belts, furnaces, fuel and fertilizer your factory needs to make what you want, and shows the order to build it in. This guide walks through each part of the tool.</p>
+          </div>
+        </section>
+
+        <section id="inicio">
+          <h2><span>1</span> Quick start</h2>
+          <ol class="steps">
+            <li><b>Choose what to make.</b> In the <kbd>◇ Overview</kbd> tab, use <em>+ Add output</em>, search for the item and click it.</li>
+            <li><b>Set the target.</b> In the output node, type how many items per minute you want.</li>
+            <li><b>See the factory.</b> Open the <kbd>⛓ Lines</kbd> tab to see machines, belts and the build order.</li>
+            <li><b>Keep it.</b> Click <kbd>💾 Save</kbd> in the sidebar, or share the page link.</li>
+          </ol>
+          <p class="note">The app opens empty. Everything you build is stored in the page address (<code>?fabrica=…</code>), so reloading loses nothing.</p>
+        </section>
+
+        <section id="tela">
+          <h2><span>2</span> The screen</h2>
+          <p>The screen is split into fixed areas, with the factory diagram in the middle.</p>
+          <figure>
+            <img src="static/tutorial/en/geral.jpg" alt="Planner screen with the Growth Potion factory in the Overview tab" loading="lazy" />
+            <figcaption>Title bar, activity bar on the left, tabs, diagram, tables panel and status bar.</figcaption>
+          </figure>
+          <dl class="parts">
+            <dt>Title bar</dt>
+            <dd>Factory name (click to edit), the <kbd>⬆ Export</kbd> and <kbd>⬇ Import</kbd> buttons and the language selector.</dd>
+            <dt>Activity bar</dt>
+            <dd><kbd>🏭</kbd> saved factories · <kbd>🗂</kbd> build order · <kbd>⚙</kbd> settings · <kbd>❓</kbd> this tutorial · <kbd>▤</kbd> tables panel. Clicking the active icon collapses the sidebar.</dd>
+            <dt>Tabs</dt>
+            <dd><kbd>◇ Overview</kbd> (inputs and outputs), <kbd>⛓ Lines</kbd> (every machine) and one <kbd>▦ Line …</kbd> tab for each block you open.</dd>
+            <dt>Status bar</dt>
+            <dd>Outputs, total machines, inputs, belt lines, speed and zoom.</dd>
+          </dl>
+          <p class="note"><b>Moving around the diagram:</b> drag the background to pan, use the mouse wheel to zoom, the <kbd>+</kbd> <kbd>−</kbd> buttons and arrows in the corner, and <kbd>⌂</kbd> to fit everything.</p>
+        </section>
+
+        <section id="geral">
+          <h2><span>3</span> Create the factory (Overview tab)</h2>
+          <p>The Overview tab shows the factory as a single block: what comes from outside on the left, the <b>Factory</b> node in the middle and the outputs on the right.</p>
+          <ul>
+            <li><b>Add an output:</b> in the <em>+ Add output</em> node, search for the item and click it. You can have several outputs at once.</li>
+            <li><b>Target:</b> edit the items/min right in the output node. <kbd>✕</kbd> removes the output.</li>
+            <li><b>Factory node:</b>
+              <ul>
+                <li><em>Inputs</em>: what comes from outside, and in purple the supplies <em>produced here</em>.</li>
+                <li><em>Outputs</em> and byproducts.</li>
+                <li>The machine types with their counts.</li>
+                <li>The heating, planting and fertilizer defaults.</li>
+              </ul>
+            </li>
+            <li><b>Name:</b> click the title at the top of the screen to name the factory.</li>
+          </ul>
+          <p>Click the Factory node (or <em>Open lines →</em>) to go to the Lines tab.</p>
+        </section>
+
+        <section id="aquecimento">
+          <h2><span>4</span> Furnaces and fuel</h2>
+          <p>Hot machines (Crucible, Kiln, Athanor, Alembic, Iron Smelter…) sit <b>on top of a furnace</b>, one per physical machine, and the furnace is what burns the fuel.</p>
+          <ul>
+            <li><b>Factory default:</b> in the Factory node, under <em>Heating</em>, choose the default furnace (Stone or Blast Furnace) and fuel.</li>
+            <li><b>Manual choice:</b> each machine can use a different furnace or fuel, through the selector on the node itself, in the details panel or in the Factory node list. The <em>Default (…)</em> option makes it follow the default again. Changing the default never changes manual machines.</li>
+            <li><b>Production line:</b> by default the fuel comes from outside. If it can be crafted, <kbd>+ Production line</kbd> adds the chain that makes it to the factory, and <kbd>✓ Own line</kbd> removes it.</li>
+          </ul>
+          <p class="note"><b>Cycles:</b> if a fuel line needs that same fuel (e.g. Charcoal Powder burned in the Crucible that makes Charcoal), the line also produces what it consumes itself. The loop is drawn as a dotted purple line.</p>
+        </section>
+
+        <section id="plantio">
+          <h2><span>5</span> Planting and fertilizer</h2>
+          <p>Herbs can be planted in two ways, chosen in the Factory node (default) or per herb (manual):</p>
+          <table>
+            <thead><tr><th></th><th>Nursery</th><th>Seed Plot</th></tr></thead>
+            <tbody>
+              <tr><td>Seed</td><td>Stays planted, not consumed</td><td>Consumed</td></tr>
+              <tr><td>Fertilizer</td><td>Consumed continuously</td><td>Not used</td></tr>
+              <tr><td>Speed</td><td>Set by the fertilizer</td><td>Recipe time</td></tr>
+            </tbody>
+          </table>
+          <p>In the Nursery, the fertilizer makes a big difference. Example with 24 Chamomile/min:</p>
+          <ul>
+            <li><b>Basic Fertilizer:</b> 1 herb/min per Nursery, so <b>24 Nurseries</b> and 120 fertilizer/min.</li>
+            <li><b>Advanced Fertilizer:</b> 12 herbs/min per Nursery, so <b>2 Nurseries</b> and 24 fertilizer/min.</li>
+          </ul>
+          <p>Fertilizer can also get a <kbd>+ Production line</kbd>, just like fuel.</p>
+        </section>
+
+        <section id="linha">
+          <h2><span>6</span> The Lines tab</h2>
+          <figure>
+            <img src="static/tutorial/en/linha.jpg" alt="Lines tab with blocks and the build order in the sidebar" loading="lazy" />
+            <figcaption>Blocks in Clusters and the Build order in the sidebar.</figcaption>
+          </figure>
+          <ul>
+            <li><b>Nodes:</b> each recipe is a machine node, with the icon, the count (<code>×10</code>), the load and the inputs and outputs per item. Between two machines sits the node of the item being carried, with its rate and number of belts.</li>
+            <li><b>Clusters or Columns</b> (top right corner):
+              <ul>
+                <li><em>Clusters</em> splits the factory into blocks, one per ingredient of the final recipe, plus one block for each fuel or fertilizer with its own line.</li>
+                <li><em>Columns</em> shows a single graph.</li>
+              </ul>
+            </li>
+            <li><b>Build order</b> (<kbd>🗂</kbd>): lists the blocks in the order they should be built, with <kbd>🔍 Zoom</kbd> and <kbd>⤢ Full line</kbd>.</li>
+            <li><b>Blocks:</b>
+              <ul>
+                <li>A click zooms into the block.</li>
+                <li><kbd>⊟ Collapse</kbd> hides the inside.</li>
+                <li>The <kbd>🔒</kbd> lock pins the position (default). With <kbd>🔓</kbd> you can drag the block and its nodes.</li>
+              </ul>
+            </li>
+            <li><b>Highlight:</b> hover a node to highlight its path to the inputs and outputs.</li>
+          </ul>
+        </section>
+
+        <section id="detalhes">
+          <h2><span>7</span> Machine details</h2>
+          <figure>
+            <img src="static/tutorial/en/detalhes.jpg" alt="Crucible details panel" loading="lazy" />
+            <figcaption>Click a machine to open the details panel.</figcaption>
+          </figure>
+          <p>The panel shows:</p>
+          <ul>
+            <li>the demand, the machines (exact and whole), the load and the recipe cycle;</li>
+            <li>the recipe, furnace, fuel and fertilizer, all editable;</li>
+            <li>the inputs and outputs with their rates.</li>
+          </ul>
+          <p>Changing anything recalculates the factory right away. If machines are added or removed, they flash and a notice sums up the change.</p>
+        </section>
+
+        <section id="bloco">
+          <h2><span>8</span> Full line: machines and belts</h2>
+          <figure>
+            <img src="static/tutorial/en/bloco.jpg" alt="Line tab showing every machine and every belt" loading="lazy" />
+            <figcaption>Each opened block becomes a tab, next to Overview and Lines.</figcaption>
+          </figure>
+          <p><kbd>⤢ Full line</kbd> opens the block in its own tab, showing the physical layout:</p>
+          <ul>
+            <li><b>Machines:</b> each physical machine is a node (<em>Grinder #1</em>, <em>#2</em>…), with its load. A partial machine is drawn dashed.</li>
+            <li><b>Belts:</b> each belt is a node. 144/min on a 60/min belt becomes 3 belts of 48.</li>
+            <li><b>Block borders:</b> what comes from outside shows up as an input, and what leaves goes to the next block, the final product or byproducts.</li>
+          </ul>
+          <p>You can open several lines at once. Each tab remembers its own zoom, and <kbd>✕</kbd> closes it.</p>
+        </section>
+
+        <section id="tabelas">
+          <h2><span>9</span> Tables and settings</h2>
+          <figure>
+            <img src="static/tutorial/en/painel.jpg" alt="Tables panel open and settings in the sidebar" loading="lazy" />
+            <figcaption>Tables panel at the bottom and settings in the sidebar.</figcaption>
+          </figure>
+          <ul>
+            <li><b>Bottom panel</b> (<kbd>▤</kbd> or the tabs):
+              <ul>
+                <li><em>Plan</em>: machine table.</li>
+                <li><em>Resources</em>: raw materials and byproducts.</li>
+                <li><em>Machines</em> and <em>Recipes</em>: catalogs.</li>
+              </ul>
+            </li>
+            <li><b>Settings</b> (<kbd>⚙</kbd>):
+              <ul>
+                <li>belt capacity (items/min);</li>
+                <li>global speed;</li>
+                <li>round machines up to whole numbers;</li>
+                <li>show byproducts;</li>
+                <li><em>Reset</em> and <em>Export JSON</em>.</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section id="salvar">
+          <h2><span>10</span> Save and share</h2>
+          <figure>
+            <img src="static/tutorial/en/salvas.jpg" alt="List of saved factories in the sidebar" loading="lazy" />
+            <figcaption>Factories saved in the browser. The open one is highlighted and warns about unsaved changes.</figcaption>
+          </figure>
+          <ul>
+            <li><b>Saved factories</b> (<kbd>🏭</kbd>):
+              <ul>
+                <li><kbd>💾 Save</kbd> stores the factory in the browser (updates it if it already exists).</li>
+                <li><kbd>+ New</kbd> starts an empty factory.</li>
+                <li>Click a factory to open it, with the tabs that were open. <kbd>🗑</kbd> deletes it.</li>
+              </ul>
+            </li>
+            <li><b>Code:</b> <kbd>⬆ Export</kbd> generates an <code>AFP1.…</code> text with the whole factory. <kbd>⬇ Import</kbd> rebuilds the factory from it.</li>
+            <li><b>Link:</b> the page address always holds the current factory (<code>?fabrica=…</code>). Send the link so someone can open exactly the same factory.</li>
+          </ul>
+        </section>
+
+        <section id="calculo">
+          <h2><span>11</span> How the math works</h2>
+          <p>Recipe, machine, heat and nutrient data come from the <a href="https://alchemy-factory-codex.com/" target="_blank" rel="noopener">Alchemy Factory Codex</a>.</p>
+          <dl class="formulas">
+            <dt>Machines</dt>
+            <dd>demand ÷ output per machine (recipe output × 60 ÷ time × speed). With <em>Round</em>, each recipe's total is rounded up only once.</dd>
+            <dt>Fuel</dt>
+            <dd>(machine heat + furnace heat) × machines × 60 ÷ the fuel's heat value.</dd>
+            <dt>Fertilizer</dt>
+            <dd>herbs/min per Nursery = 60 × fertilizer flow ÷ herb nutrients; fertilizer/min = herbs × nutrients ÷ fertilizer value.</dd>
+            <dt>Belts</dt>
+            <dd>item rate ÷ belt capacity, rounded up.</dd>
+            <dt>Cycles</dt>
+            <dd>solved by repeating until stable; if they can't sustain themselves, the consumption comes from outside and the factory warns you.</dd>
+          </dl>
+        </section>
+
+        <section id="dicas">
+          <h2><span>12</span> Tips</h2>
+          <ul>
+            <li><b>Pick your fuel carefully:</b> heat value matters a lot. Charcoal Powder is worth 48 and Coal 540, so a weak fuel may need dozens of machines just to feed the furnaces.</li>
+            <li><b>Fertilizer:</b> Advanced cuts the number of Nurseries a lot. Compare before deciding.</li>
+            <li><b>Byproducts:</b> shown dashed in red. They point to items you can use in another factory.</li>
+            <li><b>Reload:</b> if something looks outdated after an app update, reload with <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>.</li>
+          </ul>
+          <p class="back"><a class="open-app" href="planner.html?lang=en">Open the planner →</a></p>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

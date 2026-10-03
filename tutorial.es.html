@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tutorial · Alchemy Factory Planner</title>
+    <link rel="icon" type="image/png" href="static/brand/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="tutorial.css?v=20261003-0430" />
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand" href="index.html">
+        <img src="static/brand/emblem.png" alt="" />
+        <span>Alchemy Factory <b>Planner</b></span>
+      </a>
+      <span class="top-title">Tutorial</span>
+      <nav class="lang-links" aria-label="Idioma">
+        <a href="tutorial.html" hreflang="pt-BR">PT</a>
+        <a href="tutorial.en.html" hreflang="en">EN</a>
+        <a href="tutorial.es.html" class="active" hreflang="es">ES</a>
+      </nav>
+      <a class="open-app" href="planner.html?lang=es">Abrir el planner →</a>
+    </header>
+
+    <div class="layout">
+      <nav class="toc" aria-label="Índice">
+        <p class="toc-title">En este tutorial</p>
+        <ol>
+          <li><a href="#inicio">Inicio rápido</a></li>
+          <li><a href="#tela">Conociendo la pantalla</a></li>
+          <li><a href="#geral">Crear la fábrica (General)</a></li>
+          <li><a href="#aquecimento">Hornos y combustible</a></li>
+          <li><a href="#plantio">Siembra y fertilizante</a></li>
+          <li><a href="#linha">La pestaña Líneas</a></li>
+          <li><a href="#detalhes">Detalles de una máquina</a></li>
+          <li><a href="#bloco">Línea completa: máquinas y cintas</a></li>
+          <li><a href="#tabelas">Tablas y ajustes</a></li>
+          <li><a href="#salvar">Guardar y compartir</a></li>
+          <li><a href="#calculo">Cómo funciona el cálculo</a></li>
+          <li><a href="#dicas">Consejos</a></li>
+        </ol>
+      </nav>
+
+      <main class="content">
+        <section class="hero">
+          <img src="static/brand/emblem.png" alt="" />
+          <div>
+            <h1>Cómo usar Alchemy Factory Planner</h1>
+            <p>El planner calcula cuántas máquinas, cintas, hornos, combustible y fertilizante necesita tu fábrica para producir lo que quieres, y muestra el orden para montarla. Esta guía recorre cada parte de la herramienta.</p>
+          </div>
+        </section>
+
+        <section id="inicio">
+          <h2><span>1</span> Inicio rápido</h2>
+          <ol class="steps">
+            <li><b>Elige qué producir.</b> En la pestaña <kbd>◇ General</kbd>, usa <em>+ Agregar salida</em>, busca el ítem y haz clic en él.</li>
+            <li><b>Define la meta.</b> En el nodo de la salida, escribe cuántos ítems por minuto quieres.</li>
+            <li><b>Mira la fábrica.</b> Abre la pestaña <kbd>⛓ Líneas</kbd> para ver máquinas, cintas y el orden de montaje.</li>
+            <li><b>Guárdala.</b> Haz clic en <kbd>💾 Guardar</kbd> en la barra lateral, o comparte el enlace de la página.</li>
+          </ol>
+          <p class="note">La app se abre vacía. Todo lo que armas queda en la dirección de la página (<code>?fabrica=…</code>), así que recargar no borra nada.</p>
+        </section>
+
+        <section id="tela">
+          <h2><span>2</span> Conociendo la pantalla</h2>
+          <p>La pantalla se divide en áreas fijas, con el diagrama de la fábrica en el centro.</p>
+          <figure>
+            <img src="static/tutorial/es/geral.jpg" alt="Pantalla del planner con la fábrica de Growth Potion en la pestaña General" loading="lazy" />
+            <figcaption>Barra de título, barra de actividades a la izquierda, pestañas, diagrama, panel de tablas y barra de estado.</figcaption>
+          </figure>
+          <dl class="parts">
+            <dt>Barra de título</dt>
+            <dd>Nombre de la fábrica (haz clic para editarlo), los botones <kbd>⬆ Exportar</kbd> y <kbd>⬇ Importar</kbd> y el selector de idioma.</dd>
+            <dt>Barra de actividades</dt>
+            <dd><kbd>🏭</kbd> fábricas guardadas · <kbd>🗂</kbd> orden de montaje · <kbd>⚙</kbd> ajustes · <kbd>❓</kbd> este tutorial · <kbd>▤</kbd> panel de tablas. Hacer clic en el ícono activo oculta la barra lateral.</dd>
+            <dt>Pestañas</dt>
+            <dd><kbd>◇ General</kbd> (entradas y salidas), <kbd>⛓ Líneas</kbd> (todas las máquinas) y una pestaña <kbd>▦ Línea …</kbd> por cada bloque que abras.</dd>
+            <dt>Barra de estado</dt>
+            <dd>Salidas, total de máquinas, entradas, líneas de cinta, velocidad y zoom.</dd>
+          </dl>
+          <p class="note"><b>Moverse por el diagrama:</b> arrastra el fondo para moverte, usa la rueda del ratón para el zoom, los botones <kbd>+</kbd> <kbd>−</kbd> y las flechas de la esquina, y <kbd>⌂</kbd> para encuadrar todo.</p>
+        </section>
+
+        <section id="geral">
+          <h2><span>3</span> Crear la fábrica (pestaña General)</h2>
+          <p>La pestaña General muestra la fábrica como un solo bloque: lo que entra de afuera a la izquierda, el nodo <b>Fábrica</b> en el medio y las salidas a la derecha.</p>
+          <ul>
+            <li><b>Agregar salida:</b> en el nodo <em>+ Agregar salida</em>, busca el ítem y haz clic en él. Puedes tener varias salidas a la vez.</li>
+            <li><b>Meta:</b> edita los ítems/min directamente en el nodo de la salida. <kbd>✕</kbd> quita la salida.</li>
+            <li><b>Nodo Fábrica:</b>
+              <ul>
+                <li><em>Entradas</em>: lo que viene de afuera, y en morado los insumos <em>producidos aquí</em>.</li>
+                <li><em>Salidas</em> y sobrantes.</li>
+                <li>Los tipos de máquina con sus cantidades.</li>
+                <li>Los valores predeterminados de calefacción, siembra y fertilizante.</li>
+              </ul>
+            </li>
+            <li><b>Nombre:</b> haz clic en el título arriba de la pantalla para ponerle nombre a la fábrica.</li>
+          </ul>
+          <p>Haz clic en el nodo Fábrica (o en <em>Abrir líneas →</em>) para ir a la pestaña Líneas.</p>
+        </section>
+
+        <section id="aquecimento">
+          <h2><span>4</span> Hornos y combustible</h2>
+          <p>Las máquinas calientes (Crucible, Kiln, Athanor, Alembic, Iron Smelter…) van <b>encima de un horno</b>, uno por máquina física, y es el horno el que quema el combustible.</p>
+          <ul>
+            <li><b>Predeterminado de la fábrica:</b> en el nodo Fábrica, en <em>Calefacción</em>, elige el horno (Stone o Blast Furnace) y el combustible predeterminados.</li>
+            <li><b>Elección manual:</b> cada máquina puede usar otro horno u otro combustible, con el selector del propio nodo, en el panel de detalles o en la lista del nodo Fábrica. La opción <em>Predeterminado (…)</em> vuelve a seguir el predeterminado. Cambiar el predeterminado nunca altera las máquinas manuales.</li>
+            <li><b>Línea de producción:</b> por defecto el combustible viene de afuera. Si se puede fabricar, <kbd>+ Línea de producción</kbd> agrega a la fábrica la cadena que lo produce, y <kbd>✓ Línea propia</kbd> la quita.</li>
+          </ul>
+          <p class="note"><b>Ciclos:</b> si la línea de un combustible necesita ese mismo combustible (p. ej. Charcoal Powder quemado en el Crucible que hace Charcoal), la línea también produce lo que ella misma consume. La vuelta se dibuja como una línea punteada morada.</p>
+        </section>
+
+        <section id="plantio">
+          <h2><span>5</span> Siembra y fertilizante</h2>
+          <p>Las hierbas se pueden sembrar de dos formas, elegidas en el nodo Fábrica (predeterminado) o en cada hierba (manual):</p>
+          <table>
+            <thead><tr><th></th><th>Nursery</th><th>Seed Plot</th></tr></thead>
+            <tbody>
+              <tr><td>Semilla</td><td>Queda plantada, no se consume</td><td>Se consume</td></tr>
+              <tr><td>Fertilizante</td><td>Se consume de forma continua</td><td>No usa</td></tr>
+              <tr><td>Velocidad</td><td>Definida por el fertilizante</td><td>Tiempo de la receta</td></tr>
+            </tbody>
+          </table>
+          <p>En el Nursery, el fertilizante hace mucha diferencia. Ejemplo con 24 Chamomile/min:</p>
+          <ul>
+            <li><b>Basic Fertilizer:</b> 1 hierba/min por Nursery, o sea, <b>24 Nurseries</b> y 120 fertilizantes/min.</li>
+            <li><b>Advanced Fertilizer:</b> 12 hierbas/min por Nursery, o sea, <b>2 Nurseries</b> y 24 fertilizantes/min.</li>
+          </ul>
+          <p>El fertilizante también puede tener <kbd>+ Línea de producción</kbd>, igual que el combustible.</p>
+        </section>
+
+        <section id="linha">
+          <h2><span>6</span> La pestaña Líneas</h2>
+          <figure>
+            <img src="static/tutorial/es/linha.jpg" alt="Pestaña Líneas con bloques y el orden de montaje en la barra lateral" loading="lazy" />
+            <figcaption>Bloques en Clústeres y el Orden de montaje en la barra lateral.</figcaption>
+          </figure>
+          <ul>
+            <li><b>Nodos:</b> cada receta es un nodo de máquina, con el ícono, la cantidad (<code>×10</code>), la carga y las entradas y salidas por ítem. Entre dos máquinas está el nodo del ítem transportado, con la tasa y el número de cintas.</li>
+            <li><b>Clústeres o Columnas</b> (esquina superior derecha):
+              <ul>
+                <li><em>Clústeres</em> separa la fábrica en bloques, uno por ingrediente de la receta final, más un bloque para cada combustible o fertilizante con línea propia.</li>
+                <li><em>Columnas</em> muestra un solo grafo.</li>
+              </ul>
+            </li>
+            <li><b>Orden de montaje</b> (<kbd>🗂</kbd>): lista los bloques en el orden en que deben construirse, con <kbd>🔍 Acercar</kbd> y <kbd>⤢ Línea completa</kbd>.</li>
+            <li><b>Bloques:</b>
+              <ul>
+                <li>Un clic acerca el bloque.</li>
+                <li><kbd>⊟ Contraer</kbd> oculta el interior.</li>
+                <li>El candado <kbd>🔒</kbd> fija la posición (por defecto). Con <kbd>🔓</kbd> puedes arrastrar el bloque y los nodos.</li>
+              </ul>
+            </li>
+            <li><b>Resaltado:</b> pasa el ratón sobre un nodo para resaltar su camino hasta las entradas y las salidas.</li>
+          </ul>
+        </section>
+
+        <section id="detalhes">
+          <h2><span>7</span> Detalles de una máquina</h2>
+          <figure>
+            <img src="static/tutorial/es/detalhes.jpg" alt="Panel de detalles del Crucible" loading="lazy" />
+            <figcaption>Haz clic en una máquina para abrir el panel de detalles.</figcaption>
+          </figure>
+          <p>El panel muestra:</p>
+          <ul>
+            <li>la demanda, las máquinas (exactas y enteras), la carga y el ciclo de la receta;</li>
+            <li>la receta, el horno, el combustible y el fertilizante, todos editables;</li>
+            <li>las entradas y salidas con sus tasas.</li>
+          </ul>
+          <p>Cambiar algo recalcula la fábrica al instante. Si entran o salen máquinas, parpadean y un aviso resume el cambio.</p>
+        </section>
+
+        <section id="bloco">
+          <h2><span>8</span> Línea completa: máquinas y cintas</h2>
+          <figure>
+            <img src="static/tutorial/es/bloco.jpg" alt="Pestaña de línea mostrando cada máquina y cada cinta" loading="lazy" />
+            <figcaption>Cada bloque abierto se vuelve una pestaña, junto a General y Líneas.</figcaption>
+          </figure>
+          <p><kbd>⤢ Línea completa</kbd> abre el bloque en una pestaña propia, mostrando el montaje físico:</p>
+          <ul>
+            <li><b>Máquinas:</b> cada máquina física es un nodo (<em>Grinder #1</em>, <em>#2</em>…), con su carga. La máquina parcial aparece punteada.</li>
+            <li><b>Cintas:</b> cada cinta es un nodo. 144/min con cinta de 60/min se vuelven 3 cintas de 48.</li>
+            <li><b>Bordes del bloque:</b> lo que viene de afuera aparece como entrada, y lo que sale va al siguiente bloque, al producto final o a los sobrantes.</li>
+          </ul>
+          <p>Puedes abrir varias líneas a la vez. Cada pestaña recuerda su propio zoom, y <kbd>✕</kbd> la cierra.</p>
+        </section>
+
+        <section id="tabelas">
+          <h2><span>9</span> Tablas y ajustes</h2>
+          <figure>
+            <img src="static/tutorial/es/painel.jpg" alt="Panel de tablas abierto y ajustes en la barra lateral" loading="lazy" />
+            <figcaption>Panel de tablas abajo y los ajustes en la barra lateral.</figcaption>
+          </figure>
+          <ul>
+            <li><b>Panel inferior</b> (<kbd>▤</kbd> o las pestañas):
+              <ul>
+                <li><em>Plan</em>: tabla de máquinas.</li>
+                <li><em>Recursos</em>: materias primas y sobrantes.</li>
+                <li><em>Máquinas</em> y <em>Recetas</em>: catálogos.</li>
+              </ul>
+            </li>
+            <li><b>Ajustes</b> (<kbd>⚙</kbd>):
+              <ul>
+                <li>capacidad de la cinta (ítems/min);</li>
+                <li>velocidad global;</li>
+                <li>redondear máquinas a enteras;</li>
+                <li>mostrar sobrantes;</li>
+                <li><em>Restablecer</em> y <em>Exportar JSON</em>.</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section id="salvar">
+          <h2><span>10</span> Guardar y compartir</h2>
+          <figure>
+            <img src="static/tutorial/es/salvas.jpg" alt="Lista de fábricas guardadas en la barra lateral" loading="lazy" />
+            <figcaption>Fábricas guardadas en el navegador. La abierta queda resaltada y avisa cuando hay cambios sin guardar.</figcaption>
+          </figure>
+          <ul>
+            <li><b>Fábricas guardadas</b> (<kbd>🏭</kbd>):
+              <ul>
+                <li><kbd>💾 Guardar</kbd> guarda la fábrica en el navegador (la actualiza si ya existe).</li>
+                <li><kbd>+ Nueva</kbd> empieza una fábrica vacía.</li>
+                <li>Haz clic en una fábrica para abrirla, con las pestañas que estaban abiertas. <kbd>🗑</kbd> la elimina.</li>
+              </ul>
+            </li>
+            <li><b>Código:</b> <kbd>⬆ Exportar</kbd> genera un texto <code>AFP1.…</code> con la fábrica entera. <kbd>⬇ Importar</kbd> recrea la fábrica a partir de él.</li>
+            <li><b>Enlace:</b> la dirección de la página siempre contiene la fábrica actual (<code>?fabrica=…</code>). Envía el enlace para que alguien abra exactamente la misma fábrica.</li>
+          </ul>
+        </section>
+
+        <section id="calculo">
+          <h2><span>11</span> Cómo funciona el cálculo</h2>
+          <p>Los datos de recetas, máquinas, calor y nutrientes vienen del <a href="https://alchemy-factory-codex.com/" target="_blank" rel="noopener">Alchemy Factory Codex</a>.</p>
+          <dl class="formulas">
+            <dt>Máquinas</dt>
+            <dd>demanda ÷ producción por máquina (salida de la receta × 60 ÷ tiempo × velocidad). Con <em>Redondear</em>, el total de cada receta se redondea hacia arriba una sola vez.</dd>
+            <dt>Combustible</dt>
+            <dd>(calor de la máquina + calor del horno) × máquinas × 60 ÷ valor calorífico del combustible.</dd>
+            <dt>Fertilizante</dt>
+            <dd>hierbas/min por Nursery = 60 × flujo del fertilizante ÷ nutrientes de la hierba; fertilizante/min = hierbas × nutrientes ÷ valor del fertilizante.</dd>
+            <dt>Cintas</dt>
+            <dd>tasa del ítem ÷ capacidad de la cinta, redondeado hacia arriba.</dd>
+            <dt>Ciclos</dt>
+            <dd>se resuelven repitiendo hasta estabilizar; si no se sostienen, el consumo viene de afuera y la fábrica avisa.</dd>
+          </dl>
+        </section>
+
+        <section id="dicas">
+          <h2><span>12</span> Consejos</h2>
+          <ul>
+            <li><b>Elige bien el combustible:</b> el valor calorífico pesa mucho. El Charcoal Powder vale 48 y el Coal 540, así que un combustible débil puede exigir decenas de máquinas solo para alimentar los hornos.</li>
+            <li><b>Fertilizante:</b> el Advanced reduce mucho el número de Nurseries. Compara antes de decidir.</li>
+            <li><b>Sobrantes:</b> aparecen en rojo punteado. Indican ítems que puedes aprovechar en otra fábrica.</li>
+            <li><b>Recargar:</b> si algo parece desactualizado después de una actualización de la app, recarga con <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>.</li>
+          </ul>
+          <p class="back"><a class="open-app" href="planner.html?lang=es">Abrir el planner →</a></p>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
